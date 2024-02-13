@@ -1,7 +1,8 @@
-import { Lua } from 'wasmoon-lua5.1';
+import { JsType, Lua } from 'wasmoon-lua5.1';
+import { Skill } from './skill';
+import { registerIndexFunction, registerNewIndexFunction } from './wasmoon-helper';
 import fs from 'fs/promises';
 import path from 'path';
-import { Skill } from './skill';
 
 declare interface SkillParseOptions {
     level?: number;
@@ -9,17 +10,60 @@ declare interface SkillParseOptions {
 }
 
 export class SkillParser {
-    lua: Lua;
-
     static async create() {
         const lua = await Lua.create();
         const parser = new SkillParser(lua);
-        await parser.mountLuaFS(__dirname + '/lua', '/');
-        lua.ctx.Include = (path: string) => console.log(path);
+        await parser.mountLuaFS(`${__dirname}/lua`, '/');
+        lua.ctx.Include = () => {};
         await lua.doFile('/lib/base64.lua');
         lua.ctx.initScriptPath = '/InitHd.lh';
         await lua.doFile('/lib/init.lua');
         return parser;
+    }
+
+    public lua: Lua;
+
+    constructor(lua: Lua) {
+        this.lua = lua;
+    }
+
+    async parse(content: Buffer, options: SkillParseOptions = {}) {
+        if (!options.level) {
+            options.level = 0;
+        }
+        if (!options.skill_name) {
+            options.skill_name = '测试技能';
+        }
+
+        this.lua.mountFile('/skill-script.lua', content);
+        this.lua.ctx.scriptPath = '/skill-script.lua';
+        await this.lua.doFile('/lib/load-file.lua');
+        const skill_data = this.lua.ctx.env.tSkillData;
+        if (!skill_data) {
+            throw new Error('Lua解析出错，获取tSkillData时');
+        }
+        const max_level = skill_data.$detach().size;
+
+        if (options.level <= 0) {
+            options.level = max_level;
+        } else if (options.level > max_level) {
+            options.level = max_level;
+        }
+
+        const skill = new Skill({
+            dwLevel: options.level,
+            dwMaxLevel: max_level,
+        });
+
+        this.lua.ctx.env.tSkill = JsType.decorate(skill)
+            .index(registerIndexFunction(this.lua.global))
+            .newindex(registerNewIndexFunction(this.lua.global));
+        await this.lua.doFile(`/lib/add-attribute-proxy.lua`);
+
+        await this.lua.doString(`env.GetSkillLevelData(env.tSkill)`);
+
+        this.lua.unmountFile('/skill-script.lua');
+        return skill.$getResult();
     }
 
     private async mountLuaFS(lua_base: string, fs_base: string) {
@@ -37,40 +81,5 @@ export class SkillParser {
                 this.lua.mountFile(fs_path, file_content);
             }
         }
-    }
-
-    constructor(lua: Lua) {
-        this.lua = lua;
-    }
-
-    async parse(content: Buffer, options: SkillParseOptions) {
-        if (!options.level) options.level = 0;
-        if (!options.skill_name) options.skill_name = '测试技能';
-
-        this.lua.mountFile('/skill-script.lua', content);
-        this.lua.ctx.scriptPath = '/skill-script.lua';
-        await this.lua.doFile('/lib/load-file.lua');
-        const skill_data = this.lua.ctx.env.tSkillData;
-        if (!skill_data) throw new Error('Lua解析出错，获取tSkillData时');
-        const max_level = skill_data.$detach().size;
-
-        if (options.level <= 0) options.level = max_level;
-        else if (options.level > max_level) options.level = max_level;
-
-        const skill = new Skill({
-            dwLevel: options.level,
-            dwMaxLevel: max_level,
-            szSkillName: options.skill_name,
-            filePath: '/skill-script.lua',
-        });
-        this.lua.ctx.env.tSkill = skill;
-        await this.lua.doFile(`/lib/add-attribute-proxy.lua`);
-
-        try {
-            await this.lua.doString(`env.GetSkillLevelData(env.tSkill)`);
-        } catch (e) {
-            throw e;
-        }
-        console.log(this.lua.ctx.env.tSkill);
     }
 }

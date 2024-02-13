@@ -13,7 +13,7 @@ export default {
         name: 'jx3-luadata',
         sourcemap: !production,
         globals: {
-            'lodash': 'lodash'
+            lodash: 'lodash',
         },
     },
     plugins: [
@@ -23,9 +23,7 @@ export default {
         }),
         json(),
         copy({
-            targets: [
-                { src: 'src/lua', dest: 'dist' },
-            ],
+            targets: [{ src: 'src/lua', dest: 'dist' }],
         }),
     ],
 };

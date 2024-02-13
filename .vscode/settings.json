@@ -1,6 +1,12 @@
 {
     "cSpell.words": [
         "Cooldown",
+        "createtable",
+        "getfield",
+        "getmetatable",
+        "newindex",
+        "pushvalue",
+        "touserdata",
         "wasmoon"
     ]
 }

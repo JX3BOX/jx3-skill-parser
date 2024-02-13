@@ -1,5 +1,4 @@
 import iconv from 'iconv-lite';
-
 export interface SkillAttribute {
     ATTRIBUTE_EFFECT_MODE: string;
     ATTRIBUTE_TYPE: string;
@@ -18,6 +17,12 @@ export class Skill {
 
     constructor(defaults: any) {
         Object.assign(this, defaults);
+    }
+
+    $getResult() {
+        return Object.fromEntries(
+            Object.entries(this).filter(([_, value]) => typeof value !== 'function'),
+        );
     }
 
     AddCheckSelfLearntSkill(skillId: number, dwLevel: number, compareFlag: string) {
