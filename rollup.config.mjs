@@ -1,5 +1,6 @@
 import typescript from '@rollup/plugin-typescript';
 import json from '@rollup/plugin-json';
+import copy from 'rollup-plugin-copy';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -21,5 +22,10 @@ export default {
             outputToFilesystem: true,
         }),
         json(),
+        copy({
+            targets: [
+                { src: 'src/lua', dest: 'dist' },
+            ],
+        }),
     ],
 };

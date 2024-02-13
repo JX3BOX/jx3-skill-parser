@@ -23,13 +23,15 @@
         "mocha": "10.2.0",
         "prettier": "3.1.0",
         "rollup": "4.7.0",
+        "rollup-plugin-copy": "3.5.0",
         "tslib": "2.6.2",
         "typescript": "5.3.3"
     },
     "dependencies": {
         "@types/emscripten": "^1.39.10",
+        "iconv-lite": "^0.6.3",
         "lodash": "^4.17.21",
-        "wasmoon-lua5.1": "^1.17.1"
+        "wasmoon-lua5.1": "1.18.1"
     },
     "license": "MIT",
     "scripts": {
