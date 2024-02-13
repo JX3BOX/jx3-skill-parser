@@ -19,8 +19,7 @@
         "noImplicitThis": true,
         "noImplicitAny": true,
         "noUnusedParameters": true,
-        "noUnusedLocals": true,
-        "typeRoots": ["node_modules/@types", "types"]
+        "noUnusedLocals": true
     },
     "include": ["src/**/*", "bench/**/*", "test/**/*"],
     "exclude": ["node_modules"]
