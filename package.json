@@ -45,10 +45,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/JX3BOX/jx3-luadata.git"
+        "url": "git+https://github.com/JX3BOX/jx3-skill-parser.git"
     },
-    "homepage": "https://github.com/JX3BOX/jx3-luadata.git",
+    "homepage": "https://github.com/JX3BOX/jx3-skill-parser.git",
     "bugs": {
-        "url": "https://github.com/JX3BOX/jx3-luadata/issues"
+        "url": "https://github.com/JX3BOX/jx3-skill-parser/issues"
     }
 }

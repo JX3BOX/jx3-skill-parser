@@ -5,6 +5,6 @@ const parser = await SkillParser.create();
 const content = await fs.readFile('test/kuaixue.lua');
 
 for (let i of Array.from({ length: 500 }, (_, i) => i)) {
-    console.log(i)
+    console.log(i);
     await parser.parse(content);
 }

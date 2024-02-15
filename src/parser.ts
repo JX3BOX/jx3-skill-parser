@@ -14,7 +14,7 @@ export class SkillParser {
         const lua = await Lua.create();
         const parser = new SkillParser(lua);
         await parser.mountLuaFS(`${__dirname}/lua`, '/');
-        lua.ctx.Include = () => { };
+        lua.ctx.Include = () => {};
         await lua.doFile('/lib/base64.lua');
         lua.ctx.initScriptPath = '/InitHd.lh';
         await lua.doFile('/lib/init.lua');
@@ -45,7 +45,7 @@ export class SkillParser {
             throw new Error('Lua解析出错，获取tSkillData时');
         }
         const max_level = skill_data.$detach().size;
-        skill_data.$destroy()
+        skill_data.$destroy();
 
         if (options.level <= 0) {
             options.level = max_level;
