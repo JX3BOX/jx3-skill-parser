@@ -40,11 +40,13 @@ export const registerNewIndexFunction = (thread: LuaThread): number => {
     const pointer = thread.luaApi.module.addFunction((L: number) => {
         const callThread = thread.stateToThread(L);
         // 给js端的对象赋值
-        const key = callThread.getValue(2);
-        const value = callThread.getValue(3);
         const userdata = callThread.luaApi.lua_touserdata(L, 1);
         const ref = callThread.luaApi.module.getValue(userdata, '*');
-        thread.luaApi.getRef(ref as number)[key] = value;
+        const key = callThread.getValue(2);
+        if (callThread.luaApi.lua_type(L, 3) !== LuaType.Function) {
+            const value = callThread.getValue(3);
+            thread.luaApi.getRef(ref as number)[key] = value;
+        }
         // 给lua端的table的元表__inner赋值
         callThread.luaApi.lua_getmetatable(L, 1);
         // 首先尝试访问元表的__inner字段

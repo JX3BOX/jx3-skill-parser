@@ -14,7 +14,7 @@ export class SkillParser {
         const lua = await Lua.create();
         const parser = new SkillParser(lua);
         await parser.mountLuaFS(`${__dirname}/lua`, '/');
-        lua.ctx.Include = () => {};
+        lua.ctx.Include = () => { };
         await lua.doFile('/lib/base64.lua');
         lua.ctx.initScriptPath = '/InitHd.lh';
         await lua.doFile('/lib/init.lua');
@@ -37,12 +37,15 @@ export class SkillParser {
 
         this.lua.mountFile('/skill-script.lua', content);
         this.lua.ctx.scriptPath = '/skill-script.lua';
+
         await this.lua.doFile('/lib/load-file.lua');
+
         const skill_data = this.lua.ctx.env.tSkillData;
         if (!skill_data) {
             throw new Error('Lua解析出错，获取tSkillData时');
         }
         const max_level = skill_data.$detach().size;
+        skill_data.$destroy()
 
         if (options.level <= 0) {
             options.level = max_level;
@@ -54,15 +57,18 @@ export class SkillParser {
             dwLevel: options.level,
             dwMaxLevel: max_level,
         });
-
-        this.lua.ctx.env.tSkill = JsType.decorate(skill)
+        const env = this.lua.ctx.env;
+        env.tSkill = JsType.decorate(skill)
             .index(registerIndexFunction(this.lua.global))
-            .newindex(registerNewIndexFunction(this.lua.global));
+            .newindex(registerNewIndexFunction(this.lua.global))
+            .gc(this.lua.funcManager.registerGcFunction(this.lua.global));
+
         await this.lua.doFile(`/lib/add-attribute-proxy.lua`);
 
         await this.lua.doString(`env.GetSkillLevelData(env.tSkill)`);
 
         this.lua.unmountFile('/skill-script.lua');
+        env.$destroy();
         return skill.$getResult();
     }
 

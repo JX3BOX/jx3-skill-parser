@@ -2,7 +2,9 @@ import { SkillParser } from '../dist/index.js';
 import fs from 'fs/promises';
 
 const parser = await SkillParser.create();
-const content = await fs.readFile('test/jianpo.lua');
+const content = await fs.readFile('test/kuaixue.lua');
 
-const skill = await parser.parse(content);
-console.log(skill);
+for (let i of Array.from({ length: 500 }, (_, i) => i)) {
+    console.log(i)
+    await parser.parse(content);
+}
