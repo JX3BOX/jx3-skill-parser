@@ -2,9 +2,8 @@ import { SkillParser } from '../dist/index.js';
 import fs from 'fs/promises';
 
 const parser = await SkillParser.create();
-const content = await fs.readFile('test/kuaixue.lua');
+const content = await fs.readFile(
+    '/d/games/SeasunGame_unpack/std/scripts/skill/装备/输出通用附魔减疗加伤害.lua',
+);
 
-for (let i of Array.from({ length: 500 }, (_, i) => i)) {
-    console.log(i);
-    await parser.parse(content);
-}
+console.log(await parser.parse(content, { level: 11 }));

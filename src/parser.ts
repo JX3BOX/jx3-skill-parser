@@ -49,8 +49,6 @@ export class SkillParser {
 
         if (options.level <= 0) {
             options.level = max_level;
-        } else if (options.level > max_level) {
-            options.level = max_level;
         }
 
         const skill = new Skill({
