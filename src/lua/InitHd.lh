@@ -642,3 +642,8 @@ require("LuaInclude/Hd/AllDungeonsNpcSkillData")
 require("LuaInclude/Hd/AllDungeonsNpcSkillDataManager")
 require("LuaInclude/Hd/Skill")
 require("LuaInclude/Hd/ldc_consts_data")
+
+require("LuaInclude/Hd/jinengfenjituijian")
+require("LuaInclude/Hd/daxiaogongfangzaijushanghai")
+require("LuaInclude/Hd/23_banghuilingdizhanbossshanghai")
+require("LuaInclude/Hd/21_10xinbossshanghai")
