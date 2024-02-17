@@ -634,6 +634,10 @@ end
 function GetDesertHorseList()
     return true
 end
+SERVER_TYPE = {}
+function GetServerType()
+    return -1
+end
 
 -- 不能有中文
 require("LuaInclude/Hd/Table")
