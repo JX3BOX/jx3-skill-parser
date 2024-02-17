@@ -24,7 +24,7 @@
         "build/*",
         "rollup.config.mjs",
         "utils/*",
-        "lua/*"
+        "test/debug.mjs"
     ],
     "rules": {
         "no-console": "off",
