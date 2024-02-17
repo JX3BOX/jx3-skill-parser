@@ -144,7 +144,7 @@ export class Skill {
     }
     GetBuffBind() {}
     SetBuffRecipe() {
-        console.warn('[SetBuffRecipe] 缺少样本暂未实现');
+        // /console.warn('[SetBuffRecipe] 缺少样本暂未实现');
     }
     SetPublicCoolDown(params: number) {
         this.publicCoolDown = params;
@@ -176,10 +176,10 @@ export class Skill {
         }
     }
     SetSunSubsectionSkill() {
-        console.warn('[SetSunSubsectionSkill] 缺少样本暂未实现');
+        // console.warn('[SetSunSubsectionSkill] 缺少样本暂未实现');
     }
     SetMoonSubsectionSkill() {
-        console.warn('[SetMoonSubsectionSkill] 缺少样本暂未实现');
+        // console.warn('[SetMoonSubsectionSkill] 缺少样本暂未实现');
     }
     UITestCast() {}
     CheckWeaponRequest() {}
@@ -190,7 +190,7 @@ export class Skill {
     CheckCasterState() {}
     CheckTargetState() {}
     IsRelationEnemy() {
-        console.warn('[IsRelationEnemy] 缺少样本暂未实现');
+        // console.warn('[IsRelationEnemy] 缺少样本暂未实现');
     }
     SetSubSkillForAreaDepth(searchResult: number, dwSkillID: number, dwSkillLevel: number) {
         if (!this.subSkillForAreaDepths) {
@@ -213,6 +213,6 @@ export class Skill {
         });
     }
     SetHoardSkill() {
-        console.warn('[SetHoardSkill] 缺少样本暂未实现');
+        // console.warn('[SetHoardSkill] 缺少样本暂未实现');
     }
 }

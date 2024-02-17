@@ -1,8 +1,8 @@
 ---------------------------------------------------------------------->
--- ½Å±¾Ãû³Æ:	scripts/Include/AllDungeonsNpcSkillDataManager.lh
--- ¸üĞÂÊ±¼ä:	2018/10/8 19:51:39
--- ¸üĞÂÓÃ»§:	ZhangHao
--- ½Å±¾ËµÃ÷:
+-- è„šæœ¬åç§°:	scripts/Include/AllDungeonsNpcSkillDataManager.lh
+-- æ›´æ–°æ—¶é—´:	2018/10/8 19:51:39
+-- æ›´æ–°ç”¨æˆ·:	ZhangHao
+-- è„šæœ¬è¯´æ˜:
 ----------------------------------------------------------------------<
 
 Include("scripts/Include/AllDungeonsNpcSkillData.lh")
@@ -15,16 +15,16 @@ function GetSkillDamageBaseByVersion(dwSkillID, dwSkillLevel)
 	--print("GetSkillDamageBaseByVersion:", dwSkillID, dwSkillLevel)
 	if tAllSkillData and tAllSkillData[dwSkillID] and tAllSkillData[dwSkillID][dwSkillLevel] then
 		if tAllSkillData[dwSkillID][dwSkillLevel].nMapPlayerCount == 5 then
-			if tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 2 then --tankÓĞĞ§ÉúÃüÖµ
+			if tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 2 then --tankæœ‰æ•ˆç”Ÿå‘½å€¼
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageBaseCoe * nNewTankMaxHP_5 / (1 - nNewTankDefence_5))
-			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 4 then --dpsÓĞĞ§ÉúÃüÖµ
+			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 4 then --dpsæœ‰æ•ˆç”Ÿå‘½å€¼
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageBaseCoe * nNewDPSMaxHP_5 / (1 - nNewDPSDefence_5))
-			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 5 then --ÖÎÁÆ
+			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 5 then --æ²»ç–—
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageBaseCoe * nNewHPS_5)
 			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 6 then --dps
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageBaseCoe * nNewDPS_5)
 			else
-				print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+				-- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 				return 0
 			end
 		elseif tAllSkillData[dwSkillID][dwSkillLevel].nMapPlayerCount == 10 or tAllSkillData[dwSkillID][dwSkillLevel].nMapPlayerCount == 25 then
@@ -32,24 +32,24 @@ function GetSkillDamageBaseByVersion(dwSkillID, dwSkillLevel)
 				--print("On Init Skill ID= ", dwSkillID, tAllSkillData[dwSkillID][dwSkillLevel].nDamageBaseCoe, nNewDPSMaxHP_10, (1 - nNewDPSDefence_10))
 				--print(math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageBaseCoe * nNewDPSMaxHP_10 / (1 - nNewDPSDefence_10)))
 			end
-			if tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 2 then --tankÓĞĞ§ÉúÃüÖµ
+			if tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 2 then --tankæœ‰æ•ˆç”Ÿå‘½å€¼
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageBaseCoe * nNewTankMaxHP_10 / (1 - nNewTankDefence_10))
-			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 4 then --dpsÓĞĞ§ÉúÃüÖµ
+			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 4 then --dpsæœ‰æ•ˆç”Ÿå‘½å€¼
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageBaseCoe * nNewDPSMaxHP_10 / (1 - nNewDPSDefence_10))
-			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 5 then --ÖÎÁÆ
+			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 5 then --æ²»ç–—
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageBaseCoe * nNewHPS_10)
 			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 6 then --dps
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageBaseCoe * nNewDPS_10)
 			else
-				print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+				-- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 				return 0
 			end
 		else
-			print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+			-- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 			return 0
 		end
 	else
-		print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+		-- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 		return 0
 	end
 end
@@ -59,37 +59,37 @@ function GetSkillDamageRandByVersion(dwSkillID, dwSkillLevel)
 	if tAllSkillData and tAllSkillData[dwSkillID] and tAllSkillData[dwSkillID][dwSkillLevel] then
 
 		if tAllSkillData[dwSkillID][dwSkillLevel].nMapPlayerCount == 5 then
-			if tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 2 then --tankÓĞĞ§ÉúÃüÖµ
+			if tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 2 then --tankæœ‰æ•ˆç”Ÿå‘½å€¼
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageRandCoe * nNewTankMaxHP_5 / (1 - nNewTankDefence_5))
-			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 4 then --dpsÓĞĞ§ÉúÃüÖµ
+			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 4 then --dpsæœ‰æ•ˆç”Ÿå‘½å€¼
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageRandCoe * nNewDPSMaxHP_5 / (1 - nNewDPSDefence_5))
-			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 5 then --ÖÎÁÆ
+			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 5 then --æ²»ç–—
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageRandCoe * nNewHPS_5)
 			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 6 then --dps
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageRandCoe * nNewDPS_5)
 			else
-				print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+				-- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 				return 0
 			end
 		elseif tAllSkillData[dwSkillID][dwSkillLevel].nMapPlayerCount == 10 or tAllSkillData[dwSkillID][dwSkillLevel].nMapPlayerCount == 25 then
-			if tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 2 then --tankÓĞĞ§ÉúÃüÖµ
+			if tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 2 then --tankæœ‰æ•ˆç”Ÿå‘½å€¼
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageRandCoe * nNewTankMaxHP_10 / (1 - nNewTankDefence_10))
-			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 4 then --dpsÓĞĞ§ÉúÃüÖµ
+			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 4 then --dpsæœ‰æ•ˆç”Ÿå‘½å€¼
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageRandCoe * nNewDPSMaxHP_10 / (1 - nNewDPSDefence_10))
-			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 5 then --ÖÎÁÆ
+			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 5 then --æ²»ç–—
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageRandCoe * nNewHPS_10)
 			elseif tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 6 then --dps
 				return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nDamageRandCoe * nNewDPS_10)
 			else
-				print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+				-- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 				return 0
 			end
 		else
-			print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+			-- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 			return 0
 		end
 	else
-		print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+		-- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 		return 0
 	end
 end
@@ -101,22 +101,22 @@ function GetSkillTherapyBaseByVersion(dwSkillID, dwSkillLevel)
 			--if tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 4 then
 			return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nTherapyBaseCoe * nNewDPS_5)
 			--else
-			--print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+			---- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 			--return 0
 			--end
 		elseif tAllSkillData[dwSkillID][dwSkillLevel].nMapPlayerCount == 10 or tAllSkillData[dwSkillID][dwSkillLevel].nMapPlayerCount == 25 then
 			--if tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 4 then
 			return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nTherapyBaseCoe * nNewDPS_10)
 			--else
-			--print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+			---- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 			--return 0
 			--end
 		else
-			print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+			-- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 			return 0
 		end
 	else
-		print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+		-- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 		return 0
 	end
 end
@@ -128,22 +128,22 @@ function GetSkillTherapyRandByVersion(dwSkillID, dwSkillLevel)
 			--if tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 4 then
 			return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nTherapyRandCoe * nNewDPS_5)
 			--else
-			--print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+			---- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 			--return 0
 			--end
 		elseif tAllSkillData[dwSkillID][dwSkillLevel].nMapPlayerCount == 10 or tAllSkillData[dwSkillID][dwSkillLevel].nMapPlayerCount == 25 then
 			--if tAllSkillData[dwSkillID][dwSkillLevel].nCoeBaseType == 4 then
 			return math.min(99999999, tAllSkillData[dwSkillID][dwSkillLevel].nTherapyRandCoe * nNewDPS_10)
 			--else
-			--print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+			---- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 			--return 0
 			--end
 		else
-			print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+			-- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 			return 0
 		end
 	else
-		print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
+		-- print("SkillInfoMiss@AllDungeonsNpcSkillData:", dwSkillID, dwSkillLevel)
 		return 0
 	end
 end
