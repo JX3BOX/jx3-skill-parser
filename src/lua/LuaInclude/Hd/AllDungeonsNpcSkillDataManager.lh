@@ -7,8 +7,8 @@
 
 Include("scripts/Include/AllDungeonsNpcSkillData.lh")
 
-local nNewTankMaxHP_5, nNewTankDefence_5, nNewDPSMaxHP_5, nNewDPSDefence_5, nNewHPS_5, nNewDPS_5 = 270000, 0.2, 175000, 0.08, 25000, 59000
-local nNewTankMaxHP_10, nNewTankDefence_10, nNewDPSMaxHP_10, nNewDPSDefence_10, nNewHPS_10, nNewDPS_10 = 270000, 0.4, 175000, 0.08, 25000, 59000
+local nNewTankMaxHP_5, nNewTankDefence_5, nNewDPSMaxHP_5, nNewDPSDefence_5, nNewHPS_5, nNewDPS_5 = 520000, 0.2, 370000, 0.08, 40000, 210000
+local nNewTankMaxHP_10, nNewTankDefence_10, nNewDPSMaxHP_10, nNewDPSDefence_10, nNewHPS_10, nNewDPS_10 = 460000, 0.4, 330000, 0.08, 40000, 200000
 
 --GetSkillDamageBaseByVersion(skill.dwSkillID, skill.dwLevel)
 function GetSkillDamageBaseByVersion(dwSkillID, dwSkillLevel)

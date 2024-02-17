@@ -17,9 +17,12 @@
 ..待补全
 --]]
 
+--TODO:只改系数就行，不用改下面的
 --2018.6.20  系数为1
 --2018.12.21 系数为1.64
-local nScale = 3.66	--整体缩放值（目前为凌雪藏锋前期）
+--凌雪藏锋前期4.33
+--2023.4.6 系数为8.67
+local nScale = 8.67	--整体缩放值（目前为群侠万变）
 
 ---------------战士-----------
 tZsBig = {
@@ -57,7 +60,7 @@ tFsBig = {
 	DuChi = 9000 * nScale, -- 毒池
 	ChuanDu = 42000 * nScale, -- 单体必杀毒
 	PuGong = 3900 * nScale, -- 普攻
-	GanRan = 15000* nScale, -- 大传毒感染
+	GanRan = 15000 * nScale, -- 大传毒感染
 	GanRanAdd = 1000* nScale, -- 大传毒感染根据人数加成
 }
 tFsSmall = {
@@ -79,6 +82,6 @@ tLieMoRen = {
 ---------其他道具和陷阱-------------
 tItemLiDu = {
 	trap = 30000 * nScale, --陷阱	
-	TuiMoDao = 200000 * nScale, --退魔刀
+	TuiMoDao = 50000 * nScale, --退魔刀
 	JinChuang = 8000 * nScale,	--金疮药
 }

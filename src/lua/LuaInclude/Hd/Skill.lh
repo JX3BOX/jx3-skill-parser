@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------->
 -- 脚本名称:	scripts/Include/Skill.lh
--- 更新时间:	2021/4/19 星期一 下午 7:29:53
--- 更新用户:	hudongchao
+-- 更新时间:	2022/11/13 19:01:19
+-- 更新用户:	qiaochunwei
 -- 脚本说明:	
 ----------------------------------------------------------------------<
 Include("scripts/Include/LogicConst.lh")
@@ -10,19 +10,13 @@ Include("scripts/Include/AllDungeonsNpcSkillDataManager.lh")
 -- 技能用到的常量
 GAME_FPS = GLOBAL.GAME_FPS;	-- 游戏循环1秒为16帧数
 LENGTH_BASE = 64; 				-- 水平方向一米为64点
+HEIGHT_BASE = 512; 				-- 水平方向一米为64点
 PERCENT_BASE = 1024;				-- 百分比以1024为基数
 CONSUME_BASE = 100;				--战斗轻功扣除气力值基数
 PRE_FRAMES = 80;
 MELEE_ATTACK_DISTANCE = 4 * LENGTH_BASE;	-- 近身攻击技能的距离
 DISTANCE_DIS = 25 * LENGTH_BASE;
 BangHuiYueZhanDamageRate = 0.2; --帮会约战技能伤害系数
-
-
---通用额外属性添加
-function AdditionalAttribute(skill)
-	skill.bUseAdditionalAttribute = true;
-end
-
 
 --气场变量位置占用声明 0号位表示是否为剑魂 ,1到4号位表示剑阵ID,
 -- 气场NPCID,人剑合一技能用
@@ -75,6 +69,7 @@ tFlySkill = {
 	[24] = {UpSkillID = 20675, DownSkillID = 20676}, --蓬莱
 	[25] = {UpSkillID = 23039, DownSkillID = 23040}, --凌雪阁
 	[211] = {UpSkillID = 25871, DownSkillID = 25872}, --衍天宗
+	[212] = {UpSkillID = 29680, DownSkillID = 29681}, --北天药宗
 }
 --控制各门派轻功后撤技能
 tRetreatData = {
@@ -142,6 +137,10 @@ tRetreatData = {
 		{OriginalBuffID = 13836, OriginalSkillID = 20422, OriginalSkillLv = 37},
 		{SwitchBuffID = 13838, SwitchSkillID = 20422, SwitchSkillLv = 38},
 	},
+	[212] = {
+		{OriginalBuffID = 13836, OriginalSkillID = 20422, OriginalSkillLv = 39},
+		{SwitchBuffID = 13838, SwitchSkillID = 20422, SwitchSkillLv = 40},
+	},
 }
 
 -- 新手镇学习门派技能数据
@@ -190,31 +189,135 @@ tSchoolInfo = {
 }
 
 tSkillCoefficient = {
+	--明教
+	JSPMJ = 1 * 1.1, --净世破魔击的后续加成系数，2024.1月技改开始后续都在这改
 	--万花
+	WanHuaDotDmgFactor = 1048576 * 1 , --青冠：芙蓉额外提升75，刷新提升至100%
+	WanHuaDotDmgFactor_Normal = 1048576 * 0.25 , --青冠：吞噬提升25%
+	WanHuaDotDmgFactor_TG = 1048576, --踏歌系数
+	WanHuaBSCost = 20, --碧水二段技能消耗的能量
+	--商阳指
+	[180] = {		skillnChannelInterval = function(dwSkillLevel)
+			if dwSkillLevel < 10 then
+				return 64 * 0.9 * 1.25 * 1.15 * 1.05 * 1.15 * 1.05 * 1.05
+			elseif dwSkillLevel < 29 then
+				return (64 + (dwSkillLevel - 9) * 4) * 0.9 * 1.25 * 1.15 * 1.05 * 1.15 * 1.05 * 1.05
+			else
+				return 161 * 0.9 * 1.25 * 1.15 * 1.05 * 1.15 * 1.05 * 1.05
+			end
+		end,
+		nMaxLevel = 29, --最大等级
+	},
+	--钟林毓秀
+	[189] = {		skillnChannelInterval = function(dwSkillLevel)
+			if dwSkillLevel < 10 then
+				return 48 * 0.9 * 1.25 * 1.15 * 1.05 * 1.15 * 1.1 * 1.05 * 1.05
+			elseif dwSkillLevel < 24 then
+				return (48 + (dwSkillLevel - 9) * 8) * 0.9 * 1.25 * 1.15 * 1.05 * 1.15 * 1.1 * 1.05 * 1.05
+			else
+				return 175 * 0.9 * 1.25 * 1.15 * 1.05 * 1.15 * 1.1 * 1.05 * 1.05
+			end
+		end,
+		nMaxLevel = 24,
+	},
+	--兰摧玉折
+	[190] = {		skillnChannelInterval = function(dwSkillLevel)
+			if dwSkillLevel < 10 then
+				return (28 + 48 * 0.9 * 1.25 * 1.15 * 1.05 * 1.1 * 1.05 * 1.15 * 1.1 ) * 1.05 * 1.05
+			elseif dwSkillLevel < 19 then
+				return (28 + (48 + (dwSkillLevel - 9) * 9) * 0.9 * 1.25 * 1.15 * 1.05 * 1.1 * 1.05 * 1.15 * 1.1) * 1.05 * 1.05
+			else
+				return (28 + 155 * 0.9 * 1.25 * 1.15 * 1.05 * 1.1 * 1.05 * 1.15 * 1.1) * 1.05 * 1.05
+			end
+		end,
+		nMaxLevel = 19,
+	},
+	--快雪时晴dot
+	[32481] = {		skillnChannelInterval = (28 + 155 * 0.9 * 1.25 * 1.15 * 1.05 * 1.1 * 1.05 * 1.15 * 1.1) * 1.05 * 1.2 * 0.12
+	},
 	--快雪时晴
 	[2636] = {		skillnChannelInterval = function(dwSkillLevel)
-						if dwSkillLevel < 10 then
-							return 44 * 0.9 * 1.05*1.1*1.15 * 1.23;
-						elseif dwSkillLevel < 29 then
-							return (44 + (dwSkillLevel - 9) * 2) * 0.9 * 1.05*1.1*1.15 * 1.23
-						else
-							return 84 * 0.9 * 1.05*1.1*1.15 * 1.23;     -- 通道技间隔时间
-						end
-					end
+			if dwSkillLevel < 10 then
+				return 44 * 0.9 * 1.05 * 1.1 * 1.15 * 1.23;
+			elseif dwSkillLevel < 29 then
+				return (44 + (dwSkillLevel - 9) * 2) * 0.9 * 1.05 * 1.1 * 1.15 * 1.23
+			else
+				return 84 * 0.9 * 1.05 * 1.1 * 1.15 * 1.23;     -- 通道技间隔时间
+			end
+		end
 	},
+	--苍云
 	--盾击
 	[13047] = {		skillnChannelInterval = function(dwSkillLevel)
-						if dwSkillLevel < 5 then
-							return 16*1.05*1.05*1.1;
-						elseif dwSkillLevel < 16 then
-							return (16 + (dwSkillLevel - 4) * 5)*1.05*1.05*1.1;
-						else
-							return 100*1.05*1.05*1.1;     -- 通道技间隔时间
-						end
-					end
-	}
+			if dwSkillLevel < 5 then
+				return 16 * 1.05 * 1.05 * 1.1;
+			elseif dwSkillLevel < 16 then
+				return (16 + (dwSkillLevel - 4) * 5) * 1.05 * 1.05 * 1.1;
+			else
+				return 100 * 1.05 * 1.05 * 1.1;     -- 通道技间隔时间
+			end
+		end
+	},
+
+	--绝刀
+	[13055] = {		skillnChannelInterval = function(dwSkillLevel)
+			if dwSkillLevel < 5 then
+				return 60 * 0.9 * 0.75 * 0.9 * 1.1 * 1.05 * 1.05 * 1.05 * 1.22 * 1.05 * 1.05*1.1*1.06;
+			elseif dwSkillLevel < 20 then
+				return (60 + (dwSkillLevel - 4) * 12) * 0.9 * 0.75 * 0.9 * 1.1 * 1.05 * 1.05 * 1.05 * 1.22 * 1.05 * 1.05*1.1*1.06;
+			else
+				return 250 * 0.75 * 0.9 * 1.1 * 1.05 * 1.05 * 1.05 * 1.22 * 1.05 * 1.05*1.1*1.06;     -- 通道技间隔时间
+			end
+		end
+	},
+	--斩刀
+	[13054] = {		skillnChannelInterval = function(dwSkillLevel)
+			if dwSkillLevel < 5 then
+				return 50 * 0.9 * 0.85 * 1.05 * 1.1 * 1.15 * 1.15 * 1.05*1.1*1.1*1.06;
+			elseif dwSkillLevel < 22 then
+				return (50 + (dwSkillLevel - 4) * 10) * 0.9 * 0.85 * 1.05 * 1.1 * 1.15 * 1.15 * 1.05*1.1*1.1*1.06;
+			else
+				return 250 * 0.9 * 0.85 * 1.05 * 1.1 * 1.15 * 1.15 * 1.05*1.1*1.1*1.06;     -- 通道技间隔时间
+			end
+		end
+	},
+	--劫刀
+	[13052] = {		skillnChannelInterval = function(dwSkillLevel)
+			if dwSkillLevel < 10 then
+				return 20 * 1.1 * 1.05 * 1.1 * 1.05 * 1.1 * 1.05*1.06;
+			elseif dwSkillLevel < 28 then
+				return (20 + (dwSkillLevel - 9) * 7) * 1.1 * 1.05 * 1.1 * 1.05 * 1.1 * 1.05*1.06;
+			else
+				return 160 * 1.1 * 1.05 * 1.1 * 1.05 * 1.1 * 1.05*1.06;     -- 通道技间隔时间
+			end
+		end
+	},
+
+	[28345] = {		skillnChannelInterval = function(dwSkillLevel)
+			if dwSkillLevel < 6 then
+				return 40 * 0.85;
+			elseif dwSkillLevel < 15 then
+				return (20 * (dwSkillLevel - 6) + 45) * 0.85;
+			else
+				return 260 * 0.85;     -- 通道技间隔时间
+			end
+		end
+	},
+	--太虚剑意
+	--无我无剑
+	[365] = {		skillnChannelInterval = function(dwSkillLevel)
+			if dwSkillLevel < 10 then
+				return 4 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05;
+			elseif dwSkillLevel < 35 then
+				return (0.5 * (dwSkillLevel - 9) + 4) * 1.1 * 1.1 * 1.1 * 1.1 * 1.05;
+			else
+				return 19 * 1.1 * 1.1 * 1.1 * 1.1 * 1.05;     -- 通道技间隔时间
+			end
+		end
+	},
+
 }
-	
+
 --战斗轻功技能替换
 function SettFlySkillSkill(player)
 	if tFlySkill[player.dwForceID] then
@@ -299,6 +402,67 @@ function SettlanternSkill(player)
 		end
 	end
 end
+--用于刀宗添加破绽
+function AddFlaw(player, target)
+	if not player then
+		return
+	end
+	if not target then
+		return
+	end
+
+	local nType
+	if IsPlayer(target.dwID) then
+		nType = TARGET.PLAYER
+	else
+		nType = TARGET.NPC
+	end
+
+	--给目标添加的破绽Buff
+	local nCount --破绽时长
+	if player.GetSkillLevel(32499) == 1 then
+		nCount = 120
+	else
+		nCount = 60
+	end
+
+	local buff_stack = target.GetBuffByOwner(24056, 1, player.dwID)
+	if player.GetSkillLevel(32500) == 1 then
+		target.AddBuff(player.dwID, player.nLevel, 24056, 1, nCount)
+	else
+		if not buff_stack then
+			target.AddBuff(player.dwID, player.nLevel, 24056, 1, nCount)
+		elseif buff_stack.nStackNum <= 3 then
+			target.AddBuff(player.dwID, player.nLevel, 24056, 1, nCount)
+		else
+			target.SetBuffLeftActiveCount(buff_stack.nIndex, nCount)
+			target.SetBuffNextActiveFrame(buff_stack.nIndex, 1 + GetLogicFrameCount())
+		end
+	end
+	local buff_stack = target.GetBuffByOwner(24056, 1, player.dwID)
+	if not buff_stack then
+		return
+	end
+
+	--目标映射给刀宗的监控Buff
+	local buff_jk = player.GetBuffByOwner(23955, 1, target.dwID)
+	if buff_jk then
+		for i = 1, buff_jk.nStackNum do
+			player.DelBuffByIndex(buff_jk.nIndex)
+		end
+		player.AddBuff(target.dwID, target.nLevel, 23955, 1, nCount, 1, buff_stack.nStackNum)
+	else
+		player.AddBuff(target.dwID, target.nLevel, 23955, 1, nCount, 1, buff_stack.nStackNum)
+	end
+
+	--目标选择框表现Buff
+	target.AddBuff(player.dwID, player.nLevel, 24059, buff_stack.nStackNum, nCount)
+	if player.GetSkillLevel(32500) == 1 then
+		player.CastSkill(32621, math.min(buff_stack.nStackNum + 4, 10), nType, target.dwID) --指定降低目标伤害
+	else
+		player.CastSkill(32621, math.min(buff_stack.nStackNum, 4), nType, target.dwID) --指定降低目标伤害 --指定降低目标伤害
+	end
+end
 
 --空中后撤技能(特殊处理多姿态的藏剑、霸刀)
 function SetRetreatSkill(player)
@@ -366,6 +530,67 @@ function StopFly(player)
 	player.AddBuff(player.dwID, player.nLevel, 3473, 2) --抗摔
 	--player.DelBuffByID(13422)
 end
+
+--尝试寻找目标点附近固定距离的一个无3D障碍的点
+function UseObstacleXY(player, nTargetX, nTargetY, nTargetZ, nHeight, nRadius)
+	local scene = player.GetScene()
+	if not scene then
+		return
+	end
+	local nResX, nResY, nResZ = player.GetAbsoluteCoordinate()
+	if nRadius < 32 then
+		return nResX, nResY, nResZ
+	end
+	local nDir = Random(256)
+	for i = 1, 4 do -- 4个方向
+		local nPosX, nPosY = CustomFunction.GetOffsetPosByXYFA(nTargetX, nTargetY, 0, nDir, nRadius)
+		local nTempX, nTempY, nTempZ, bValid = scene.GetInterceptPoint(nTargetX, nTargetY, nTargetZ, nPosX, nPosY, nTargetZ, nHeight)
+		if bValid and (nTempX == 0 and nTempY == 0 and nTempZ == 0) then
+			local nGroundX, nGroundY, nGroundZ, bGroundValid = scene.GetInterceptPoint(nPosX, nPosY, nTargetZ, nPosX, nPosY, 0)
+			if bGroundValid and (nGroundX ~= 0 or nGroundY ~= 0 or nGroundZ ~= 0) then
+				return nGroundX, nGroundY, nGroundZ
+			end
+		end
+		nDir = nDir + 64 -- 加90度
+	end
+	return nResX, nResY, nResZ
+end
+
+--尝试寻找目标点附近固定距离的一个无3D障碍的点
+function DzUseObstacleXY(player, nTargetX, nTargetY, nTargetZ, nHeight, nRadius, nCount)
+	local scene = player.GetScene()
+	if not scene then
+		
+		return
+	end
+	local nDir = player.nFaceDirection
+	for i = 1, 4 do -- 4个方向
+		for j = 1, nCount do
+			local nPosX, nPosY = CustomFunction.GetOffsetPosByXYFA(nTargetX, nTargetY, 0, nDir, nRadius - 64 * nCount)
+			local nTempX, nTempY, nTempZ, bValid = scene.GetInterceptPoint(nTargetX, nTargetY, nTargetZ, nPosX, nPosY, nTargetZ, nHeight)
+			if bValid and (nTempX == 0 and nTempY == 0 and nTempZ == 0) then
+				local nGroundX, nGroundY, nGroundZ, bGroundValid = scene.GetInterceptPoint(nPosX, nPosY, nTargetZ, nPosX, nPosY, 0)
+				if bGroundValid and (nGroundX ~= 0 or nGroundY ~= 0 or nGroundZ ~= 0) then
+					return nGroundX, nGroundY, nGroundZ
+				end
+			end
+		end
+		nDir = nDir + 64 -- 加90度
+	end
+	
+	local nRadom = Random(100)
+	local nFinalDir
+	if nRadom <= 50 then
+		nFinalDir = player.nFaceDirection + Random(64)
+	else
+		nFinalDir = player.nFaceDirection - Random(64)
+	end
+	local nX, nY = CustomFunction.GetOffsetPosByXYFA(nTargetX, nTargetY, 0, nFinalDir, nRadius)
+	local nResX, nResY, nResZ = scene.GetInterceptPoint(nX, nY, nTargetZ, nX, nY, 0)
+	return nResX, nResY, nResZ
+end
+
+
 
 -- 更新气场NPCID
 function UpdataQichangNpc(player, npcID)
@@ -616,7 +841,7 @@ function CDTransfer(player, CDID_Sou, IsOverDraft_Sou, CDID_Dst, IsOverDraft_Dst
 end
 
 --特殊SetPosition 在横云意绷紧状态下若终点超出自身10尺 则此次SetPosition 不执行
-function SetSpecialPosition(targetID, nX, nY, nZ)
+function SetSpecialPosition(targetID, nX, nY, nZ)--改这里需要同步改playerDeath里最下面的同名函数
 	local target, ntype
 	if not GetPlayer(targetID) then
 		target = GetNpc(targetID)
@@ -642,6 +867,10 @@ function SetSpecialPosition(targetID, nX, nY, nZ)
 			return
 		end
 
+		--技能组禁锢
+		if target.IsHaveBuff(24450, 0) then
+			return
+		end
 		--不处于横云意状态 直接执行
 		if not target.IsHaveBuff(15898, 1) and not target.IsHaveBuff(15897, 1) then
 			target.SetPosition(nX, nY, nZ)
@@ -672,7 +901,6 @@ function SetSpecialPosition(targetID, nX, nY, nZ)
 			end
 		end
 	end
-
 end
 
 --收回player连出去的链子
@@ -750,6 +978,14 @@ function sRecoveryRelatedChain(player)
 	end
 end
 
+local tBanCustomTherapyBuff = {
+	[1] = {7913, 1}, --系统通用
+	[2] = {9175, 0}, --生息禁疗
+	[3] = {20709, 0}, --天工甲士
+	[4] = {20728, 0}, --禁疗盾壁
+	[5] = {21912, 0}, --百战异闻录_陆寻_禁止贯体
+	[6] = {22812, 0},
+}
 --百分比回血通用接口
 --由player对target造成nTherapyValue治疗量 若player没取到则由target自己对自己治疗
 --目前只支持玩家对玩家
@@ -762,8 +998,21 @@ function PCustomTherapy(playerID, targetID, nUiLevel, nTherapyValue)
 		return
 	end
 
+	for i = 1, #tBanCustomTherapyBuff do
+		if target.IsHaveBuff(tBanCustomTherapyBuff[i][1], tBanCustomTherapyBuff[i][2]) then
+			return
+		end
+	end
+	--2023/12/20添加，精神受损的减疗效果对贯体也生效
+	if target.IsHaveBuff(21977, 1) then
+		local buff = target.GetBuff(21977, 0)
+		if buff then
+			nTherapyValue=math.ceil(nTherapyValue*(100-buff.nStackNum)/100)
+		end
+	end
 	local player = GetPlayer(playerID)
-	if not target.GetBuff(7913, 1) and target.dwShapeShiftID == 0 and not target.IsHaveBuff(9175, 0) then
+	--if not target.GetBuff(7913, 1) and target.dwShapeShiftID == 0 and not target.IsHaveBuff(9175, 0) and not target.IsHaveBuff(20709, 0) and not target.IsHaveBuff(20728, 0) then
+	if target.dwShapeShiftID == 0 then
 		if player then
 			target.CustomTherapy(playerID, 23951, nUiLevel, 6, nTherapyValue)
 		else
@@ -801,6 +1050,8 @@ function ProcessPlayerSkillNpc(npc, player)
 		return
 	end
 	if npc then
+		npc.nLevel = player.nLevel
+		npc.CopyPlayerSimpleFightAttr(player.dwID)
 		if player.nBattleFieldSide ~= -1 then
 			npc.SetBattleFieldSide(player.nBattleFieldSide)
 		end
@@ -826,6 +1077,8 @@ function ProcessPlayerSkillNpcCanBeHit(npc, player)
 		return
 	end
 	if npc then
+		npc.nLevel = player.nLevel
+		npc.CopyPlayerSimpleFightAttr(player.dwID)
 		if player.nBattleFieldSide ~= -1 then
 			npc.SetBattleFieldSide(player.nBattleFieldSide)
 		end
@@ -843,27 +1096,154 @@ function ProcessPlayerSkillNpcCanBeHit(npc, player)
 	end
 end
 
---110级版本计算招架率
+--技能处理jjc可被释放者攻击npc
+function ProcessPlayerSkillSelfNpcCanBeHit(npc, player)
+	if not player then
+		return
+	end
+	if npc then
+		--FB某个天坑BOSS专用
+		if player.IsHaveBuff(12040, 1) then
+			npc.AddBuff(player.dwID, player.nLevel, 12040, 1, 600)
+		end
+		if player.IsHaveBuff(12040, 2) then
+			npc.AddBuff(player.dwID, player.nLevel, 12040, 2, 600)
+		end
+		-- 气场浮空
+		if player.bBirdMove == true and player.IsHaveBuff(13422, 0) then
+			npc.AddBuff(player.dwID, player.nLevel, 12343, 1)
+		end
+	end
+end
+
+--120级版本计算招架率
 function SkillGetParry(player)
 	if player then
-		return  (player.nParry / (player.nParry + 4.345 * 3750)) * 100 + player.nParryBaseRate / 100
+		if player.nLevel >= 110 then
+			return  (player.nParry / (player.nParry + 4.345 * (player.nLevel * 450 - 45750))) * 100 + player.nParryBaseRate / 100
+		else
+			return  (player.nParry / (player.nParry + 4.345 * 3750)) * 100 + player.nParryBaseRate / 100
+		end
 	else
 		return 0
 	end
 end
 
-tSkillForbidBuff = {	--身上有该buff时禁止受到特殊技能影响
-	{7049, 1}, --世界boss
-	{10864, 1}, --驭兽
-	{7525, 1}, {7525, 2}, {7561, 1}, {7561, 2}, {14341, 1}, {14341, 2}, {15814, 1}, {15814, 2}, {11594, 0}, {13096, 0}, --大小攻防相关
-	{9982, 1}, --大跑商
-	{4964, 2}, --活动相关
-	{13260, 4}, {13260, 5}, {13260, 6}, --李渡鬼域
-	{18872, 1}, {18872, 2}, --帮会联赛大旗手
+local t_AbsorbDamageShieldType = {
+	ABSORB_ATTRIBUTE_SHIELD_TYPE.GLOBAL,
+	ABSORB_ATTRIBUTE_SHIELD_TYPE.PHYSICS,
+	ABSORB_ATTRIBUTE_SHIELD_TYPE.SOLAR,
+	ABSORB_ATTRIBUTE_SHIELD_TYPE.NEUTRAL,
+	ABSORB_ATTRIBUTE_SHIELD_TYPE.LUNAR,
+	ABSORB_ATTRIBUTE_SHIELD_TYPE.POISON,
 }
-	
---技能通用判特殊buff
+--目标身上所有伤害吸收盾减少百分比 参数一目标玩家的dwID(只支持玩家) 参数二需要扣除的百分比
+--若目标身上有多个吸收盾，每个吸收盾都扣除对应比例
+function CostAllDamageAbsorbShieldByPercent(dwSkillSrcID, nLevel, dwCharacterID, nPercent)
+	local player = GetPlayer(dwCharacterID)
+	if not player then
+		return
+	end
+
+	local t_Absorb = player.GetAbsorbInfo()
+	if #t_Absorb > 0 then
+		for i, v_AbsorbMessage in pairs(t_Absorb) do
+			for j, k_AbsorbType in pairs(t_AbsorbDamageShieldType) do
+				if v_AbsorbMessage.nAbsorbType == k_AbsorbType then
+					player.CostAbsorbShieldValue(dwSkillSrcID, 30428, nLevel, v_AbsorbMessage.dwBuffID, player.GetAbsorbShieldLeftValue(v_AbsorbMessage.dwBuffID) * nPercent, true)
+					break;
+				end
+			end
+		end
+	end
+end
+
+--目标身上所有伤害吸收盾减少指定数值 参数一目标玩家的dwID(只支持玩家) 参数二需要扣除的数值
+--若目标身上有多个吸收盾，依据吸收盾的顺序依次消耗
+function CostAllDamageAbsorbShieldByValue(dwSkillSrcID, nLevel, dwCharacterID, nValue)
+	local player = GetPlayer(dwCharacterID)
+	if not player then
+		return
+	end
+	local t_Absorb = player.GetAbsorbInfo()
+	local nLeftValue = nValue
+	if #t_Absorb > 0 then
+		for i, v_AbsorbMessage in pairs(t_Absorb) do
+			for j, k_AbsorbType in pairs(t_AbsorbDamageShieldType) do
+				if v_AbsorbMessage.nAbsorbType == k_AbsorbType then
+					local nCostValue = math.min(v_AbsorbMessage.nAbsorbValue, nLeftValue)
+					nLeftValue = nLeftValue - nCostValue			
+					player.CostAbsorbShieldValue(dwSkillSrcID, 30428, nLevel, v_AbsorbMessage.dwBuffID, nCostValue, true)
+					break;
+				end
+			end
+			if nLeftValue <= 0 then
+				break;
+			end
+		end
+	end
+	if nLeftValue > 0 then
+		player.RechargeableAbsorbDamage(dwSkillSrcID, 30428, nLevel, nLeftValue, true)
+	end
+end
+
+--目标身上所有伤害吸收盾减少指定数值 参数一目标玩家的dwID(只支持玩家) 参数二需要扣除的百分比
+--若目标身上有多个吸收盾，依据吸收盾的顺序依次消耗百分比，nPer值小数点1.0=100%,技能显示：护盾衰减
+--和上面CostAllDamageAbsorbShieldByPercent的区别是，技能ID34468会提示是自己盾衰减，而不是别人打的！！！
+function CostAllDamageAbsorbShieldBSelf(dwSkillSrcID, nLevel, dwCharacterID, nPer)
+	local player = GetPlayer(dwCharacterID)
+	if not player then
+		return
+	end
+	local t_Absorb = player.GetAbsorbInfo()
+	if #t_Absorb > 0 then
+		for i, v_AbsorbMessage in pairs(t_Absorb) do
+			for j, k_AbsorbType in pairs(t_AbsorbDamageShieldType) do
+				if v_AbsorbMessage.nAbsorbType == k_AbsorbType then
+					local nCostValue = math.floor(v_AbsorbMessage.nAbsorbValue * nPer)
+					if nCostValue > 0 then
+						player.CostAbsorbShieldValue(dwSkillSrcID, 34468, nLevel, v_AbsorbMessage.dwBuffID, nCostValue, true)
+					end
+				end
+			end
+		end
+	end
+end
+
+--系统Buff：不允许被减益（平沙、蚀心蛊、鸿蒙天禁、听风换血、横云意）等、不允许增益（机甲、蟾噬、逐云寒蕊进草），如:大旗手
+local tSkillForbidBuff = {
+	{7049, 1},
+	{10864, 1},
+	{7525, 1}, {7525, 2}, {7561, 1}, {7561, 2}, {14341, 1}, {14341, 2}, {11594, 0}, {13096, 0},
+	{9982, 1},
+	{4964, 2},
+	{13260, 4}, {13260, 5}, {13260, 6},
+	{18872, 1}, {18872, 2},
+	{21410, 1},
+}
+--次级系统buff：不允许被减益（平沙、蚀心蛊、鸿蒙天禁、听风换血、横云意）等、可以增益（机甲、逐云寒蕊进草），如:GF主Tbuff
+local tSkillForbidOnlyNegativeBuff = {
+	{15814, 1}, {15814, 2},
+}
+
 function SkillIsSpecialBuffExist(target)
+	if not target then
+		return false
+	end
+	for k, v in pairs(tSkillForbidBuff) do
+		if target.IsHaveBuff(v[1], v[2]) then
+			return true
+		end
+	end
+	for k, v in pairs(tSkillForbidOnlyNegativeBuff) do
+		if target.IsHaveBuff(v[1], v[2]) then
+			return true
+		end
+	end
+	return false
+end
+
+function SkillIsSpecialOnlyNegativeBuffExist(target)
 	if not target then
 		return false
 	end
@@ -875,6 +1255,29 @@ function SkillIsSpecialBuffExist(target)
 	return false
 end
 
+local tKungfuType = {
+	[1] = {10080, 10081, 10242, 10243, 10447, 10448},
+	[2] = {10002, 10003},
+	[3] = {10014, 10021, 10028, 10615},
+	[4] = {10175, 10176, 10626, 10627},
+	[5] = {10015, 10026, 10062, 10144, 10145, 10224, 10268, 10389, 10390, 10464, 10533, 10585, 10698,10756},
+	[6] = {10225},
+}
+--技能通用取kungfu 1/2/3/4/5 阴/阳/混元/毒/外
+function SkillKungfuType(player)
+	if not player then
+		return 0
+	end
+	local dwKungfuID = player.GetKungfuMountID()
+	for i = 1, #tKungfuType do
+		for j = 1, #tKungfuType[i] do
+			if dwKungfuID == tKungfuType[i][j] then
+				return i
+			end
+		end
+	end
+	return 0
+end
 --万花player为target添加nNum层毫针：层数叠加，等级按照后上的来
 function SkillAddHaoZhen(player, target, nNum)
 	if not target then
@@ -891,14 +1294,14 @@ function SkillAddHaoZhen(player, target, nNum)
 		nlev = 7
 		nlevdel = 6
 	end
-	
+
 	local buff_hz1 = target.GetBuff(9724, nlevdel)
 	if buff_hz1 then
 		nAddNum = nAddNum + buff_hz1.nStackNum
 		target.DelGroupBuff(9724, nlevdel)
 	end
 	target.AddBuff(player.dwID, player.nLevel, 9724, nlev, 0, 0, nAddNum)
-	
+
 	return true
 end
 
@@ -929,22 +1332,18 @@ function ModityCDToUI(player, SkillID_1, SkillID_2, IsPasueSkill)
 		local nTotalCD = 0
 		local nLeftCD = 0
 		local SkillLevel = 0
-
 		if SkillID_2 ~= 0 then
 			skill_id = SkillID_2
 		else
 			skill_id = SkillID_1
 		end
-
 		SkillLevel = math.max(player.GetSkillLevel(skill_id), 1)
-
 		if IsPasueSkill == 0 then
 			bStop = false
 		else
 			bStop = true
 		end
 		local nCDMaxCount, nCDId = player.GetCDMaxCount(skill_id) -- 最大充能层数，和 cd_id(该接口仅使用充能技能)
-
 		if nCDMaxCount > 1 then
 			nCongNengTotal = player.GetCDInterval(nCDId)      -- 其实是一次充能的 总时间
 			nTotalCD = nCongNengTotal
@@ -955,7 +1354,6 @@ function ModityCDToUI(player, SkillID_1, SkillID_2, IsPasueSkill)
 			end
 		end
 		nCongNengCd, nCDCurrentCount = player.GetCDLeft(nCDId)  -- 当前层里面的剩余时间，已冲次数
-
 		if bStop then
 			--print(1111)
 			if nCDMaxCount > 1 then
@@ -971,7 +1369,6 @@ function ModityCDToUI(player, SkillID_1, SkillID_2, IsPasueSkill)
 				nEndFrame = GetLogicFrameCount() + nLeftCD
 			end
 		end
-
 		print("skill_id" .. ":" .. skill_id)
 		print("bStop" .. ":" .. bStop)
 		print("nLeftFrame" .. ":" .. nLeftFrame)
@@ -1006,428 +1403,107 @@ function ModityCDToUI(player, SkillID_1, SkillID_2, IsPasueSkill)
 		end
 	end
 end
+--通用额外属性添加
+function AdditionalAttribute(skill)
+	--化劲
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_SELF_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.DECRITICAL_DAMAGE_POWER_BASE_KILONUM_RATE,
+		100,
+		0
+	);
+end
 
 --副本用功能,给技能加上各种穿透属性
+--穿透规则：护盾、反弹、伤害转移类的buff都删除，其他减伤、无敌格挡、免死等不用额外删除，会自动处理
+--[[所有通过resistprecent实现减伤的buff都不会删除(拥有减伤效果的buff不会被移除，但减伤不会生效)
+所有通过类型格挡(例如GLOBAL_BLOCK)来实现无敌的buff都不会被删除(拥有免疫效果的buff不会被移除，但实际免疫不会生效)
+所有免死类buff已在穿透、穿刺脚本中添加buff21898来处理，无需额外处理
+所有护盾、承伤、反弹等只有删除buff才能去除效果的，才会直接删除buff]]
 function SkillPenetration(skill)
-	
 
-	--青霄飞羽减伤 --TODO：2021年下半年大版本再提出去
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_SELF_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_MULTI_GROUP_BUFF_BY_ID,
-		9510,
-	1
-		);
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_SELF_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_MULTI_GROUP_BUFF_BY_ID,
-		18128,
-	1
-		);
-	
-	--啸如虎结束后护盾
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		17890,
-		1
-	);
-	--心火叹
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		9919,
-		1
-	);
-	--心火叹
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		19227,
-		1
-	);	
-	--仇非不屈
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		18105,
-		i
-	);
-	--十方玄机
-	for i = 1, 2 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			15717,
-			i
-		);
-	end
-	for i = 1, 6 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			360,
-			i
-		);
-	end
-	--云生结海
-	for i = 1, 2 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			9265 + i - 1,
-			1
-		);
-	end
-	--王母平摊
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		12361,
-		1
-	);
-	--王母平摊
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		12400,
-		1
-	);
-	--生死劫
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		6301,
-		1
-	);
-	--锻骨决
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		856,
-		1
-	);
-	--度厄力
-	for i = 1, 8 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			4244,
-			i
-		);
-	end
-	--啸如虎
-	for i = 1, 6 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			203,
-			i
-		);
-	end
-	--渊
-	for i = 1, 5 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			2778,
-			1
-		);
-	end
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		6810,
-		1
-	);
-
-	--折叶
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		9933,
-		1
-	);
-	--舍身
-	for i = 1, 2 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			1242,
-			i
-		);
-	end
-	--舍身
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		5706,
-		1
-	);
-	--删除和尚反弹BUFF
-	for i = 1, 6 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			2797,
-			i
-		);
-	end
-	--无相决减伤
-	for i = 1, 7 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			9802 + i,
-			1
-		);
-	end
-	--狮啸承伤
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		9830,
-		1
-	);
-	--独觉
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		9835,
-		1
-	)
-	--疾电叱羽承伤
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		13771,
-		1
-	);
-	--无相绝
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		10486,
-		1
-	);
-	--无相绝
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		10493,
-		1
-	);	
-	--巨门北落
-	for i = 1, 2 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			18049,
-			i
-		);
-	end
-	--玄水蛊
-	for i = 1, 3 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			14637,
-			i
-		);
-	end
-	--坐忘无我
-	for i = 1, 16 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			134,
-			i
-		);
-	end
-	for i = 1, 10 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			6090,
-			i
-		);
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			8867,
-			i
-		);
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			8868,
-			i
-		);
-	end
-	--月斜星楼
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		17015,
-		1
-	);
-	--起卦
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		18203,
-		1
-	);
-	--蟾蜍献祭
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		2542,
-		1
-	);
-	--巧织
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		17990,
-		1
-	);
-	--天河
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		17991,
-		1
-	);
-	--五毒格挡伤害
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		6224,
-		1
-	);
-	--泉凝月
-	for i = 1, 8 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			5735,
-			i
-		);
-	end
-	--泉凝月
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		6143,
-		1
-	);
-	--盾壁
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		8425,
-		1
-	);
-	--雄栾
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		8253,
-		1
-	);
-	--雷走
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		18148,
-		1
-	);
-	--金戈
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		17028,
-		1
-	);
-	--斗转星移
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		17997,
-		1
-	);
-	--孤影吸收盾
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		15948,
-		1
-	);
-	--苍云盾
-	for i = 1, 2 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			8291,
-			i
-		);
-	end
-	for i = 1, 5 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			8279,
-			i
-		);
-	end
-	--梅花三弄
-	for i = 1, 4 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			9334,
-			i
-		);
-	end
-	--清除凤凰蛊
-	--for i = 1, 6 do
+	--删除自身虚弱BUFF --TODO：这个由于魔法属性执行顺序的问题，不能这样做了
+	--local tBuffWeakID = {
+	--3929, 4429, 4488, 4530, 5643, 5708, 6215, 6283, 8397, 8419, 9746, 12351, 12517, 12518, 12519, 12520,13073, 15895, 17017, 17105, 18046, 18108
+	--}
+	--for k, v in pairs(tBuffWeakID) do
 	--skill.AddAttribute(
 	--ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-	--ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-	--2313,
-	--i
+	--ATTRIBUTE_TYPE.DEL_MULTI_GROUP_BUFF_BY_ID,
+	--v,
+	--1
 	--);
 	--end
-	--弘法
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		10208,
-		1
-	);
-	--新的肃列 盾壁 buff 19236，1 吸收18%的伤害
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		19236,
-		1
-	);
-	--舍利子
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		14909,
-		1
-	);
-	--反弹
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		19301,
-		1
-	);
+	local tDaoZongBuffID = {24233, 24241}--刀宗
+	local tYaoZongBuffID = {20398, 20799,20874,21772,22691}--药宗
+	local tYanTianBuffID = {18049,18203,17997}--衍天宗
+	local tLingXueGeBuffID = {15717,17028,16447,16480}--凌雪阁
+	local tPengLaiBuffID = {13771}--蓬莱
+	local tBaDaoBuffID = {18148,12506}--霸刀
+	local tChangGeBuffID = {9510,18128,9265,9266,15948,10015,9334,9584,9293}--长歌
+	local tCangYunBuffID = {18105, 8425, 8253, 8291, 8279, 19236}--苍云
+	local tMingJiaoBuffID = {9919, 19227, 6301, 8291, 4244}--明教
+	local tGaiBangBuffID = {}--丐帮
+	local tTangMenBuffID = { }--唐门
+	local tWuDuBuffID = {14637, 2542, 17990, 17991, 6224,24473,27001}--五毒
+	local tCangJianBuffID = {9702, 5735, 6143, 22894}--藏剑
+	local tQiXiuBuffID = {12361, 12400, 22875, 22894,25435}--七秀
+	local tChunYangBuffID = {12558, 134, 6090, 8867,8868}--纯阳
+	--local tShaoLinBuffID = {1242, 5706, 2797, 9804,9805,9806,9807,9808,9809,9830,9835,10486,10493,10208,14909,19301,9809,11979,11980,11981,19301,23689,2792,2793,2794,2795,2796,2797,388,389,390,396,397,398}--少林
+	local tShaoLinBuffID = {1242,5706,9830,10208,14909}--少林
+	local tTianCeBuffID = {17890, 203, 2778, 6810}--天策
+	local tWanHuaBuffID = {17015, 24349, 24148}--万花
+	local tWanLingShanZhuangBuffID={26951,27120,27126,27408,26951,27459,26944}--万灵山庄
+	local tShaoLin_TSWQBuffID={16441,16877,16882,16883,16884}--少林特殊武器
+	local tQiXiu_TSWQBuffID={16325,16363}--七秀特殊武器
+	local tWanHua_TSWQBuffID={15381}--万花特殊武器
+	local tChangGe_TSWQBuffID={16911}--长歌特殊武器
+	local tChunYang_TSWQBuffID={10195}--纯阳特殊武器
+	local tWuDu_TSWQBuffID={16568}--五毒特殊武器
+	local tBaDao_TSWQBuffID = {15143}--霸刀特殊武器
+	local tLingXueGe_TSWQBuffID={27856,27889}--凌雪阁特殊武器
+	local tAllBuffID = {
+		tDaoZongBuffID,
+		tYaoZongBuffID,
+		tYanTianBuffID,
+		tLingXueGeBuffID,
+		tPengLaiBuffID,
+		tBaDaoBuffID,
+		tChangGeBuffID,
+		tCangYunBuffID,
+		tMingJiaoBuffID,
+		tGaiBangBuffID,
+		tTangMenBuffID,
+		tWuDuBuffID,
+		tCangJianBuffID,
+		tQiXiuBuffID,
+		tChunYangBuffID,
+		tShaoLinBuffID,
+		tTianCeBuffID,
+		tWanHuaBuffID,
+		tWanLingShanZhuangBuffID,
+		tShaoLin_TSWQBuffID,
+		tQiXiu_TSWQBuffID,
+		tWanHua_TSWQBuffID,
+		tChangGe_TSWQBuffID,
+		tChunYang_TSWQBuffID,
+		tWuDu_TSWQBuffID,
+		tBaDao_TSWQBuffID,
+		tLingXueGe_TSWQBuffID
+	}
+	for k1, table in pairs(tAllBuffID) do
+		for k2, buffID in pairs(table)  do
+			skill.AddAttribute(
+				ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
+				ATTRIBUTE_TYPE.DEL_MULTI_GROUP_BUFF_BY_ID,
+				buffID,
+				1
+			);
+		end
+	end
 
+	----------------------------------以下为常规处理--------------------------------------
+	--格挡盾
 	skill.AddAttribute(
 		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
 		ATTRIBUTE_TYPE.GLOBAL_BLOCK,
@@ -1458,211 +1534,134 @@ function SkillPenetration(skill)
  - 2,
 		0
 	);
-
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.PHYSICS_BLOCK,
+ - 2,
+		0
+	);
+	--减伤
 	skill.AddAttribute(
 		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
 		ATTRIBUTE_TYPE.GLOBAL_RESIST_PERCENT,
- - 1024,
+ - 2048,
 		0
+	);
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.SOLAR_MAGIC_RESIST_PERCENT,
+ - 2048,
+		0
+	);
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.NEUTRAL_MAGIC_RESIST_PERCENT,
+ - 2048,
+		0
+	);
+
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.LUNAR_MAGIC_RESIST_PERCENT,
+ - 2048,
+		0
+	);
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.PHYSICS_RESIST_PERCENT,
+ - 2048,
+		0
+	);
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.POISON_MAGIC_RESIST_PERCENT,
+ - 2048,
+		0
+	);
+	--反弹处理
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.LUNAR_MAGIC_REFLECTION_PERCENT,
+ - 2048,
+		0
+	);
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.POISON_MAGIC_REFLECTION_PERCENT,
+ - 2048,
+		0
+	);
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.NEUTRAL_MAGIC_REFLECTION_PERCENT,
+ - 2048,
+		0
+	);
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.PHYSICS_REFLECTION_PERCENT,
+ - 2048,
+		0
+	);
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.SOLAR_MAGIC_REFLECTION_PERCENT,
+ - 2048,
+		0
+	);
+
+	--添加Buff阻止各种一次性免死触发（只在副本生效）
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
+		ATTRIBUTE_TYPE.CALL_BUFF,
+		21898,
+		1
 	);
 	return skill;
 end
 
 --副本用功能,给技能加上各种穿刺属性
+--[[穿刺规则：处理伤害转移buff、反弹buff，不穿护盾--2023/9/8日补充
+所有通过类型格挡(例如GLOBAL_BLOCK)来实现无敌的buff都不会被删除(拥有免疫效果的buff不会被移除，但实际免疫不会生效)
+所有免死类buff已在穿透、穿刺脚本中添加buff21898来处理，无需额外处理
+所有护盾、承伤、反弹等只有删除buff才能去除效果的，才会直接删除buff]]
 function SkillPuncture(skill)
-	--仇非不屈
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		18105,
-		i
-	);
-	--舍利子
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		14909,
-		1
-	);
-	--十方玄机
-	for i = 1, 2 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			15717,
-			i
-		);
+	local tYaoZongBuffID = {20398, 20799, 22691}--药宗
+	local tYanTianBuffID = {18049}--衍天宗
+	local tLingXueGeBuffID = {15717, 16447}--凌雪阁
+	local tPengLaiBuffID = {13771}--蓬莱
+	local tBaDaoBuffID = {12506}--霸刀
+	local tChangGeBuffID = {10015}--长歌
+	local tCangYunBuffID = {18105}--苍云
+	local tMingJiaoBuffID = { 6301}--明教
+	local tChunYangBuffID = {12558}--纯阳
+	local tShaoLinBuffID = {14909, 10486, 10493, 1242, 5706, 2797, 9830, 9835, 10208, 9804, 9805, 9806, 9807, 9808, 9809}--少林
+	local tTianCeBuffID = { 203, 2778, 6810}--天策
+	local tAllBuffID = {
+		tYaoZongBuffID,
+		tYanTianBuffID,
+		tLingXueGeBuffID,
+		tPengLaiBuffID,
+		tBaDaoBuffID,
+		tChangGeBuffID,
+		tCangYunBuffID,
+		tMingJiaoBuffID,
+		tChunYangBuffID,
+		tShaoLinBuffID,
+		tTianCeBuffID,
+	}
+	for k1, table in pairs(tAllBuffID) do
+		for k2, buffID in pairs(table)  do
+			skill.AddAttribute(
+				ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
+				ATTRIBUTE_TYPE.DEL_MULTI_GROUP_BUFF_BY_ID,
+				buffID,
+				1
+			);
+		end
 	end
-	for i = 1, 6 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			360,
-			i
-		);
-	end
-	--无相绝
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		10486,
-		1
-	);
-	--无相绝
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		10493,
-		1
-	);
-	--云生结海
-	--for i = 1, 2 do
-	--skill.AddAttribute(
-	--ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-	--ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-	--9265 + i - 1,
-	--1
-	--);
-	--end
-	--王母平摊
-	--skill.AddAttribute(
-	--ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-	--ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-	--12361,
-	--1
-	--);
-	--王母平摊
-	--skill.AddAttribute(
-	--ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-	--ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-	--12400,
-	--1
-	--);
-	--生死劫
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		6301,
-		1
-	);
-	--锻骨决
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		856,
-		1
-	);
-	--啸如虎
-	for i = 1, 6 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			203,
-			i
-		);
-	end
-	--渊
-	for i = 1, 5 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			2778,
-			1
-		);
-	end
-
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		6810,
-		1
-	);
-	--折叶
-	--skill.AddAttribute(
-	--ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-	--ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-	--9933,
-	--1
-	--);
-	--舍身
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		1242,
-		1
-	);
-	--舍身
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		5706,
-		1
-	);
-	--删除和尚反弹BUFF
-	for i = 1, 6 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			2797,
-			i
-		);
-	end
-	--无相决减伤
-	for i = 1, 7 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			9802 + i,
-			1
-		);
-	end
-	--狮啸承伤
-	--skill.AddAttribute(
-	--ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-	--ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-	--9830,
-	--1
-	--);
-	--独觉
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		9835,
-		1
-	)
-	--疾电叱羽承伤
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		13771,
-		1
-	);
-	--巨门北落
-	for i = 1, 2 do
-		skill.AddAttribute(
-			ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-			ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-			18049,
-			i
-		);
-	end
-	--清除凤凰蛊
-	--for i = 1, 6 do
-	--skill.AddAttribute(
-	--ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-	--ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-	--2313,
-	--i
-	--);
-	--end
-	--弘法
-	skill.AddAttribute(
-		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
-		ATTRIBUTE_TYPE.DEL_SINGLE_BUFF_BY_ID_AND_LEVEL,
-		10208,
-		1
-	);
-
+	----------------------------------以下为常规处理--------------------------------------
+	--格挡盾
 	skill.AddAttribute(
 		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
 		ATTRIBUTE_TYPE.GLOBAL_BLOCK,
@@ -1684,22 +1683,59 @@ function SkillPuncture(skill)
 	skill.AddAttribute(
 		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
 		ATTRIBUTE_TYPE.POISON_MAGIC_BLOCK,
- 		- 2,
+ - 2,
 		0
 	);
 	skill.AddAttribute(
 		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
 		ATTRIBUTE_TYPE.SOLAR_MAGIC_BLOCK,
- 		- 2,
+ - 2,
 		0
 	);
-
-	--skill.AddAttribute(
-	--ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
-	--ATTRIBUTE_TYPE.GLOBAL_RESIST_PERCENT,
-	--- 1024,
-	--0
-	--);
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.PHYSICS_BLOCK,
+ - 2,
+		0
+	);
+	--反弹处理
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.LUNAR_MAGIC_REFLECTION_PERCENT,
+ - 2048,
+		0
+	);
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.POISON_MAGIC_REFLECTION_PERCENT,
+ - 2048,
+		0
+	);
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.NEUTRAL_MAGIC_REFLECTION_PERCENT,
+ - 2048,
+		0
+	);
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.PHYSICS_REFLECTION_PERCENT,
+ - 2048,
+		0
+	);
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_AND_ROLLBACK,
+		ATTRIBUTE_TYPE.SOLAR_MAGIC_REFLECTION_PERCENT,
+ - 2048,
+		0
+	);
+	--添加Buff阻止各种一次性免死触发（只在副本生效）
+	skill.AddAttribute(
+		ATTRIBUTE_EFFECT_MODE.EFFECT_TO_DEST_NOT_ROLLBACK,
+		ATTRIBUTE_TYPE.CALL_BUFF,
+		21898,
+		1
+	);
 	return skill;
 end
 
@@ -3962,6 +3998,16 @@ tExp =
 	{nLevel = 108, nExp = 7503440},
 	{nLevel = 109, nExp = 8004551},
 	{nLevel = 110, nExp = 8528970},
+	{nLevel = 111, nExp = 9168642},
+	{nLevel = 112, nExp = 9601095},
+	{nLevel = 113, nExp = 10051238},
+	{nLevel = 114, nExp = 10519755},
+	{nLevel = 115, nExp = 11007328},
+	{nLevel = 116, nExp = 11514685},
+	{nLevel = 117, nExp = 12042574},
+	{nLevel = 118, nExp = 12591779},
+	{nLevel = 119, nExp = 13163100},
+	{nLevel = 120, nExp = 13757375},
 };
 
 --注意：用于退出门派时清空门派技能，请不要删除。
@@ -4067,3 +4113,341 @@ tSkillSeriesForDelete =
 	{dwSkillSeriesID = 10080, nSchoolType = 5},
 	{dwSkillSeriesID = 10081, nSchoolType = 5},
 };
+
+--根据player的心法id打不同伤害，用于828吃鸡活动
+tImbaSkillAdapt = {
+	{
+		skill_dmg = ATTRIBUTE_TYPE.SKILL_PHYSICS_DAMAGE,
+		skill_dmg_ran = ATTRIBUTE_TYPE.SKILL_PHYSICS_DAMAGE_RAND,
+		call_dmg = ATTRIBUTE_TYPE.CALL_PHYSICS_DAMAGE,
+	},
+	{
+		skill_dmg = ATTRIBUTE_TYPE.SKILL_SOLAR_DAMAGE,
+		skill_dmg_ran = ATTRIBUTE_TYPE.SKILL_SOLAR_DAMAGE_RAND,
+		call_dmg = ATTRIBUTE_TYPE.CALL_SOLAR_DAMAGE,
+	},
+	{
+		skill_dmg = ATTRIBUTE_TYPE.SKILL_NEUTRAL_DAMAGE,
+		skill_dmg_ran = ATTRIBUTE_TYPE.SKILL_NEUTRAL_DAMAGE_RAND,
+		call_dmg = ATTRIBUTE_TYPE.CALL_NEUTRAL_DAMAGE,
+	},
+	{
+		skill_dmg = ATTRIBUTE_TYPE.SKILL_LUNAR_DAMAGE,
+		skill_dmg_ran = ATTRIBUTE_TYPE.SKILL_LUNAR_DAMAGE_RAND,
+		call_dmg = ATTRIBUTE_TYPE.CALL_LUNAR_DAMAGE,
+	},
+	{
+		skill_dmg = ATTRIBUTE_TYPE.SKILL_POISON_DAMAGE,
+		skill_dmg_ran = ATTRIBUTE_TYPE.SKILL_POISON_DAMAGE_RAND,
+		call_dmg = ATTRIBUTE_TYPE.CALL_POISON_DAMAGE,
+	},
+};
+tImbaKungfuTypeList = { --心法对应type，此表每次开活动会维护，1外功2阳性3自然4阴性5毒
+	[10026] = 1, --傲血
+	[10224] = 1, --鲸鱼
+	[10225] = 5, --田螺
+	[10390] = 1, --分山
+	[10447] = 4, --莫问
+	[10021] = 3, --花间
+	[10464] = 1, --北傲诀
+	[10533] = 1, --凌海
+	[10585] = 1, --隐龙
+	[10615] = 3, --太玄
+	[10014] = 3, --紫霞
+	[10015] = 1, --太虚
+	[10081] = 4, --冰心
+	[10003] = 2, --易筋经
+	[10144] = 1, --藏剑
+	[10145] = 1, --藏剑
+	[10268] = 1, --笑尘
+	[10242] = 4, --焚影
+	[10175] = 5, --毒经
+	[10627] = 5, --无方
+	[10698] = 1, --孤锋诀
+	[10756] = 1, --万灵
+}
+function Imba_GetPlayerDmg(player) --根据player的心法id，返回其技能等级，以及技能三个参数设定
+	local nType = tImbaKungfuTypeList[player.GetKungfuMountID()]
+	if nType and tImbaSkillAdapt[nType] then
+		return nType, tImbaSkillAdapt[nType][1], tImbaSkillAdapt[nType][2], tImbaSkillAdapt[nType][3]
+	end
+end
+
+--竞技场修正身高
+local tMapArenaFixHeight = {
+	[128] = 1600, --乐山
+	[129] = 1300, --华山
+	[238] = 1300, --青竹
+	[362] = 1300, --虚海之眼
+}
+function ResetPlayerHeight(player) --jjc用于重置玩家换模前后的身高
+	local dwMapID = player.GetMapID()
+	if not dwMapID then
+		return
+	end
+	if tMapArenaFixHeight[dwMapID] then
+		player.SetHeight(tMapArenaFixHeight[dwMapID], false)
+	end
+end
+
+function wanhuaguNewPower(player, nAdd, bOnlyFresh, bShuiyue, bNotFight) --增删能量, bOnlyFresh是否仅刷新，bShuiyue是否水月期间，bNotFight是否处于非战斗状态（非战斗状态下能量不受奇穴加减影响）
+	if not bOnlyFresh then --如果只刷新，就处理一下nAdd
+		if nAdd == 0 then
+			return
+		end
+		if player.GetSkillLevel(32484) == 1 and not bNotFight then --放歌加能量额外+2，非战斗状态下不加
+			nAdd = nAdd + 2
+		end
+		--新雪中行
+		--if not bNotFight and nAdd < 0 and player.GetSkillLevel(32477) == 1 then
+			--if not player.GetBuff(24205, 1) or player.GetBuff(24205, 1).nStackNum < 3 then
+			--player.AddBuff(player.dwID, player.nLevel, 24205, 1)
+			--end
+		--end
+	end
+	--local buffStack = 0
+	--local buff = player.GetBuff(24156, 1)
+	--if buff then
+	--buffStack = buff.nStackNum
+	--end
+	--if buffStack + nAdd < 0 then --无效扣能
+	--return
+	--end
+
+	if nAdd > 0 then --脱战重置墨意计数
+		local buff_tzmy = player.GetBuff(24277, 0)
+		if buff_tzmy then
+			buff_tzmy.nCustomValue = 0
+		end
+	end
+	player.nCurrentRage = player.nCurrentRage + nAdd
+	if player.nCurrentRage > player.nMaxRage then
+		player.nCurrentRage = player.nMaxRage
+	end
+	--buff掩码16646
+	player.DelMultiGroupBuffByID(412)
+	player.DelMultiGroupBuffByID(6266) --先把原本的两个删掉
+	--player.DelMultiGroupBuffByID(24156) --表现用，UI来了就注掉
+	--if player.nCurrentRage > 0 then
+	--player.AddBuff(player.dwID, player.nLevel, 24156, 1, 1, 0, player.nCurrentRage)
+	--end
+	if nAdd < 0 and not player.IsHaveBuff(24245, 0) then --流离专属，消耗后把全瞬发删除
+		player.DelBuff(24538, 1)
+	end
+
+	--if player.nCurrentRage >= 10 then --乱洒
+		--player.AddBuff(player.dwID, player.nLevel, 26280, 1)
+	--else
+		--player.DelBuff(26280, 1)
+	--end
+	if player.nCurrentRage >= 40 then--新的流迟彼针
+		player.AddBuff(player.dwID, player.nLevel, 27091, 1)
+		
+	else
+		player.DelBuff(27091, 1)
+	end
+	
+	local nSFBuffStack = math.floor(player.nCurrentRage / 20) --20能量1瞬发
+	if nSFBuffStack > 0 then
+		if player.IsHaveBuff(24245, 0) or player.IsHaveBuff(24538, 0) then
+			bShuiyue = true
+		end
+		if bShuiyue then
+			player.AddBuff(player.dwID, player.nLevel, 412, 1, 1, 0, nSFBuffStack)
+			local Is_pre, S_ID, S_lev, L_time = player.GetSkillOTActionState()
+			if Is_pre ~= CHARACTER_OTACTION_TYPE.ACTION_IDLE then
+				player.AddBuff(player.dwID, player.nLevel, 8597, 1) --保护buff
+				--player.AddBuff(player.dwID, player.nLevel, 8597, 1) --保护buff
+			end
+		else
+			player.AddBuff(player.dwID, player.nLevel, 6266, 1, 1, 0, nSFBuffStack)
+			local Is_pre, S_ID, S_lev, L_time = player.GetSkillOTActionState()
+			if Is_pre ~= CHARACTER_OTACTION_TYPE.ACTION_IDLE and (S_ID == 179 or S_ID == 142 or S_ID == 140) then --三针读条时能量加了触发，加上保护（）
+				player.AddBuff(player.dwID, player.nLevel, 8597, 1) --保护buff
+				--player.AddBuff(player.dwID, player.nLevel, 8597, 1) --保护buff 不知道为什么要加2层，抄放歌的应该没事
+			end
+		end
+		RemoteCallToClient(player.dwID, "ChangeSkillSurfaceNum", 142, nSFBuffStack)
+		RemoteCallToClient(player.dwID, "ChangeSkillSurfaceNum", 179, nSFBuffStack)
+	else
+		RemoteCallToClient(player.dwID, "ChangeSkillSurfaceNum", 142, nil)
+		RemoteCallToClient(player.dwID, "ChangeSkillSurfaceNum", 179, nil)
+	end
+end
+
+function LimitOfCwUseLevel(player)
+	if player.nLevel >= 120 then
+		local SzWarning = GetEditorString(24, 4605)
+		player.SendSystemMessage(SzWarning)
+		RemoteCallToClient(player.dwID, "OnOutputWarningMessage", "MSG_NOTICE_YELLOW", SzWarning, 3)
+		return false
+	end
+	return true
+
+end
+
+function HongChenXiaYing_AddAssistedLiXingYunPower(player, nPower)
+	local lxyjj = player.GetNpcAssistedStagePoint(14)  --李星云心法和武学境界三
+	--检测李星云是否在场
+	local bLXYIn = false
+	local npclxy
+	local tHero = player.GetSummonedList()
+	if not tHero then
+		return
+	end
+	for k, v in pairs(tHero) do
+		if v.dwAssistedID == 14 then
+			bLXYIn = true
+			npclxy = GetNpc(v.dwNpcID)
+			break
+		end
+	end
+	if not npclxy then
+		return
+	end
+	--在场则开始加战势值
+	local bufflxy = player.GetBuff(25599, 2)
+	if not bufflxy then
+		if lxyjj < 15000 then
+			player.AddAssistedPower(14, nPower)
+			npclxy.AddBuff(player.dwID, player.nLevel,25599,2,1,0,nPower/50)		
+		end
+		if  lxyjj >= 15000  then
+			player.AddAssistedPower(14, nPower * 1.5)
+			npclxy.AddBuff(player.dwID, player.nLevel,25599,2,1,0,nPower * 1.5/50)
+		end
+	else
+		if bufflxy.nStackNum < 17 and lxyjj < 15000  then
+			player.AddAssistedPower(14, nPower)
+			npclxy.AddBuff(player.dwID, player.nLevel,25599,2,1,0,nPower/50)
+		end
+		if bufflxy.nStackNum < 25 and lxyjj >= 15000  then
+			player.AddAssistedPower(14, nPower * 1.5)
+			npclxy.AddBuff(player.dwID, player.nLevel,25599,2,1,0,nPower * 1.5/50)
+		end
+	end
+end
+
+
+function WanHuaRandom(n)
+	local set = {}
+	for i = 0, 2 ^ n - 1 do
+		local nOnes = 0
+		for j = 0, n - 1 do
+			if GetValueByBits(i, j, 1) == 0 then
+				nOnes = nOnes + 1
+			end
+		end
+		if nOnes == n / 2 then
+			table.insert(set, i)
+		end
+	end
+	return set
+end
+tWanHuatagelist = {
+	{nLen = 2, tList = {1}},
+--	{nLen = 4, tList = WanHuaRandom(4)},
+--	{nLen = 6, tList = WanHuaRandom(6)},
+}
+
+--------手机端新增内容
+
+function SetDelaySubSkillTimeline(skill, tbSubSkillCfg)
+	skill.bSubSkillTimeline = true
+
+	local nFrame = 0
+	for _, tbSubSkill in ipairs(tbSubSkillCfg) do
+		nFrame = nFrame + tbSubSkill.nFrame
+		skill.SetDelaySubSkill(nFrame, tbSubSkill.dwSkillID, tbSubSkill.dwSkillLevel)
+	end
+end
+
+function AddOverDraftCoolDown(player, dwSkilID, dwCooldownID)
+    local nMaxOverDraftCount, nDraftCount = player.GetOverDraftCoolDown(dwCooldownID)
+    if nMaxOverDraftCount == 0 then
+        return
+    end
+    
+    local dwSkillLevel = player.GetSkillLevel(dwSkilID)
+    if dwSkillLevel == 0 then
+        return
+    end
+    
+    local nCooldownInterval = player.GetSkillCDInterval(dwSkilID, dwSkillLevel, dwCooldownID)
+    if nCooldownInterval > 0 and nDraftCount < nMaxOverDraftCount then
+        if nDraftCount ~= 0 then
+           player.AddCDTime(dwCooldownID, nCooldownInterval)
+        end
+        player.SetOverDraftCoolDown(dwCooldownID, nDraftCount + 1)
+    end
+end
+
+function GetHDKungfuMountID(player)
+    local Kungfu = player.GetKungfuMount()
+    if not Kungfu then
+        return nil
+    end
+
+    if Kungfu.nPlatformType ~= SKILL_PLATFORM_TYPE.MOBILE then
+        return Kungfu.dwSkillID
+    end
+
+    return GetHDKungfuID(Kungfu.dwSkillID)
+end
+
+function GetBuffStackNum(character, dwBuffID, dwBuffLevel, dwSrcID)
+    local buff 
+	if dwSrcID and dwSrcID ~= 0 then
+		buff = character.GetBuffByOwner(dwBuffID, dwBuffLevel, dwSrcID)
+	else
+		buff = character.GetBuff(dwBuffID, dwBuffLevel)
+	end
+    return buff and buff.nStackNum or 0
+end
+
+--获取自身的小乘黄，万灵山庄用
+
+function GetChengHuang(player)
+	local buff = player.GetBuff(26884, 1)
+	if buff then
+		local npc = GetNpc(buff.nCustomValue)
+		if npc and npc.dwTemplateID == 124066 then
+			return npc
+		end
+	end
+	return nil
+end
+
+if IsClient() then
+	-- 清理客户端角色的移动状态，用于玩家通用解控技能
+	function ClearCharacterMoveState(character)
+		if character.nMoveState == MOVE_STATE.ON_KNOCKED_OFF or
+			character.nMoveState == MOVE_STATE.ON_PULL or
+			character.nMoveState == MOVE_STATE.ON_KNOCKED_DOWN or
+			character.nMoveState == MOVE_STATE.ON_KNOCKED_BACK or
+			character.nMoveState == MOVE_STATE.ON_REPULSED or
+			character.nMoveState == MOVE_STATE.ON_SKILL_MOVE_DEATH or
+			character.nMoveState == MOVE_STATE.ON_SKILL_MOVE_DST or
+			character.nMoveState == MOVE_STATE.ON_SKILL_MOVE_SRC or
+			character.nMoveState == MOVE_STATE.ON_SKILL_MOVE_TAIL
+			then
+			-- 服务器端的移动状态变更同步到客户端有延迟
+			-- 此处在客户端先清理角色状态并同步到表现，避免角色动作逻辑错误
+			character.Stop()
+			character.PostStateToRepresent()
+		end
+	end
+end
+
+local dwBuffDetachTypeMask = 2^3 + 2^5 + 2^7 + 2^9 + 2^11
+local dwDebuffDetachTypeMask = 2^4 + 2^6 + 2^8 + 2^10 + 2^12
+local dwBuffFunctionTypeMask = 0
+local dwDebuffFunctionTypeMask = 2^12
+
+function DetachBuffByMask(character, nIntensity, nDetachCount)
+	return character.DetachBuffByMask(dwBuffDetachTypeMask, dwBuffFunctionTypeMask, nIntensity, nDetachCount)
+end
+
+function DetachDebuffByMask(character, nIntensity, nDetachCount)
+	return character.DetachBuffByMask(dwDebuffDetachTypeMask, dwDebuffFunctionTypeMask, nIntensity, nDetachCount)
+end

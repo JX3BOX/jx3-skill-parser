@@ -178,6 +178,7 @@ RELATION_FORCE = {ConvertProxiedTable = ConvertProxiedTable,
 	ANSHI_YUANSHI_SHOUHUNZU = {155, 155}, -- 剑胆琴心_源氏_狩魂组，永王行宫_花月别院
 	JIANDAN_YONGANHANG = {160, 160},		--剑胆琴心_永安行，洛阳战乱
 	JIANDAN_LINGYUNHUI = {161, 161},		--剑胆琴心_凌云会，白帝水宫
+	JIANDAN_BD_SBY = {162, 162},		--剑胆琴心_霸刀山庄，塞北营
 	JIANDAN_GZYB_JINGWU = {163, 163},		--郭子仪部·靖武，洛阳城
 	JIANDAN_JINGJINGE = {164, 164},		--精金阁，洛阳城
 	LUOYANG_GFLJ_DANGGOU = {165, 165}, -- 洛阳光复联军·荡寇
@@ -215,13 +216,31 @@ RELATION_FORCE = {ConvertProxiedTable = ConvertProxiedTable,
 	SWPL_TAIZIWEISHUAIFU = {210, 210}, --太子卫率府
 	---------奉天证道----------------
 	PLAYER_YANTIANZONG = {211, 211}, -- 衍天宗·玩家
+	PLAYER_BEITIANYAOZONG = {212, 212}, -- 北天药宗·玩家
 	YANTIANZONG = {216, 216}, -- 衍天宗
+	BEITIANYAOZONG = {217, 217}, -- 北天药宗
 	HQ_XINGJIEDIAN = {233, 233},	--浩气盟兴节殿
 	ER_DUANCHOUDIAN = {234, 234},	--恶人谷断仇殿
 	FTZD_QIXIU_BIXIAHUI = {242, 242}, --七秀·碧霞会
 	FTZD_SHAOLIN_LUOHANTANG = {243, 243}, --少林·罗汉堂
 	FTZD_WANHUA_TONGXINMENG = {244, 244}, --万花·同心盟
+	FB_DAMODONG = {245, 245}, --达摩洞
 	FTZD_CANGJIAN_JIJIANTANG = {246, 246}, --藏剑·祭剑堂
+	---------北天药宗----------------
+	FB_BAIDIJIANGGUAN = {251, 251},  --白帝江关 江虞盟军
+	FB_ZHANGSHUINANLUG = {252, 252},  --漳水南路 漳水营
+	FB_LEIYUDAZE = {254, 254},  --雷域大泽 百蛊殿
+	BTYZ_HEISHANLINHAI_CANCONGZHAI = {255, 255},  --蚕丛寨
+	FB_YOUYANGLIANJUN = {257, 257}, --佑阳联军 河阳之战
+	---------横刀断浪----------------
+	PLAYER_DAOZONG = {213, 213}, -- 刀宗·玩家
+	DAOZONG = {218, 218}, -- 刀宗
+	HQ_HEZHENGXIANFENGXIAODUI = {260, 260},--浩气盟和正先锋小队
+	ER_ZIJIEXIANFENGXIAODUI = {261, 261}, --恶人谷恣桀先锋小队
+	FB_PINGLUJUN = {262, 262}, --西津渡 平卢军
+	FB_LINGRANTANG = {267, 267}, --武狱黑牢 凌然堂
+	PLAYER_WANLINGSHANZHUANG = {214, 214}, -- 万灵山庄·玩家
+	WANLINGSHANZHUANG = {219, 219}, -- 万灵山庄
 	
 };RELATION_FORCE = RELATION_FORCE:ConvertProxiedTable()
 
