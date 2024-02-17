@@ -40,12 +40,12 @@ export class SkillParser {
 
         await this.lua.doFile('/lib/load-file.lua');
 
+        let max_level = 0;
         const skill_data = this.lua.ctx.env.tSkillData;
-        if (!skill_data) {
-            throw new Error('Lua解析出错，获取tSkillData时');
+        if (skill_data) {
+            max_level = skill_data.$detach().size;
+            skill_data.$destroy();
         }
-        const max_level = skill_data.$detach().size;
-        skill_data.$destroy();
 
         if (options.level <= 0) {
             options.level = max_level;
