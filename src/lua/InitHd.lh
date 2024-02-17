@@ -631,6 +631,10 @@ function IsClient()
     return true
 end
 
+function GetDesertHorseList()
+    return true
+end
+
 -- 不能有中文
 require("LuaInclude/Hd/Table")
 require("LuaInclude/Hd/LogicConst")

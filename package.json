@@ -1,6 +1,6 @@
 {
     "name": "@jx3box/jx3-skill-parser",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "description": "A package used to parse jx3 game skill script",
     "authors": [
         "x3zvawq <x3zvawq@gmail.com>"
