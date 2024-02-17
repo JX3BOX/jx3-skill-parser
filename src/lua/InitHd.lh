@@ -627,6 +627,8 @@ ABSORB_ATTRIBUTE_SHIELD_TYPE = {
     THERAPY = 7
 }
 
+MOVE_STATE = {}
+
 function IsClient() 
     return true
 end
