@@ -5,12 +5,13 @@ import fs from 'fs/promises';
 import path from 'path';
 
 declare interface SkillParseOptions {
+    id?: number;
     level?: number;
     skill_name?: string;
 }
 
 export class SkillParser {
-    static async create() {
+    static async create(include?: (filename: string) => Buffer) {
         const lua = await Lua.create();
         const parser = new SkillParser(lua);
         await parser.mountLuaFS(`${__dirname}/lua`, '/');
@@ -52,6 +53,7 @@ export class SkillParser {
         }
 
         const skill = new Skill({
+            dwSkillID: options.id,
             dwLevel: options.level,
             dwMaxLevel: max_level,
         });
