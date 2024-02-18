@@ -11,7 +11,7 @@ declare interface SkillParseOptions {
 }
 
 export class SkillParser {
-    static async create(include?: (filename: string) => Buffer) {
+    static async create() {
         const lua = await Lua.create();
         const parser = new SkillParser(lua);
         await parser.mountLuaFS(`${__dirname}/lua`, '/');

@@ -673,6 +673,29 @@ MOVE_STATE = {
     ON_WALK = 2
 }
 
+ROLE_TYPE = {
+    LITTLE_BOY = 5,
+    LITTLE_GIRL = 6,
+    SEXY_FEMALE = 4,
+    STANDARD_FEMALE = 2,
+    STANDARD_MALE = 1,
+    STRONG_MALE = 3
+}
+
+SKILL_KIND_TYPE = {
+    ADAPTIVE = 8,
+    LEAP = 6,
+    LUNAR_MAGIC = 4,
+    NEUTRAL_MAGIC = 3,
+    NONE = 7,
+    PHYSICS = 1,
+    POISON = 5,
+    SOLAR_MAGIC = 2
+}
+
+tIdentidySkill = {}
+tRobAdventure = {}
+
 function IsClient()
     return true
 end
@@ -690,5 +713,21 @@ function Random()
     return 0
 end
 
+function GetTowerCustom()
+    return nil
+end
+
+function GetGlobalMusicPath()
+    return nil
+end
+
+function LangKeXing_GetSceneValue()
+    return nil
+end
+
+function GetHomelandMgr ()
+    return nil
+end
+
 nJYXLTime = 10 -- 白帝江关 宇文灭常量数据 玄冰功蓄力时间
-nUltimateTime = 15  -- 白帝江关 宇文灭常量数据 九阴破灭枪蓄力时间
+nUltimateTime = 15 -- 白帝江关 宇文灭常量数据 九阴破灭枪蓄力时间

@@ -13,5 +13,8 @@ require("LuaInclude/Hd/daxiaogongfangzaijushanghai")
 require("LuaInclude/Hd/23_banghuilingdizhanbossshanghai")
 require("LuaInclude/Hd/21_10xinbossshanghai")
 require("LuaInclude/Hd/xinfamijishuxingtou")
+require("LuaInclude/Hd/beigua_jiqiongsu_data")
+require("LuaInclude/Hd/jinghuabieyuan_dabaoyongxinxibiao")
+require("LuaInclude/Hd/gongming_npc_damage_table")
 
-
+require("LuaInclude/Hd/sprint/wlsz_data")
