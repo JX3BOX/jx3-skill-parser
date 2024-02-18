@@ -40,7 +40,8 @@ envTemplate = {
     require = function(file)
         EnvRequire(file, envTemplate);
     end,
-    print = print,
+    print = function()
+    end,
     math = math,
     string = string,
     table = table,

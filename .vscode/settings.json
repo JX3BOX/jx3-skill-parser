@@ -2,6 +2,7 @@
     "cSpell.words": [
         "Cooldown",
         "createtable",
+        "deasync",
         "getfield",
         "getmetatable",
         "newindex",

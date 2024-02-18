@@ -56,7 +56,6 @@ export class SkillParser {
             const name = `/extra/${index}.lua`;
             lua.mountFile(name, buffer);
             this.extra_include[file] = name;
-            console.log(file, '->', name);
             return name
                 .replace(/\.lua$/, '')
                 .replace(/\.lh$/, '')
@@ -100,7 +99,6 @@ export class SkillParser {
         await this.lua.doFile(`/add-attribute-proxy.lua`);
         await this.lua.doString(`env.GetSkillLevelData(env.tSkill)`);
         this.lua.unmountFile('/skill-script.lua');
-        // 清理不常用的文件防内存炸
         for (const include in this.extra_include) {
             if (!SkillParser.cache.includes(include)) {
                 this.lua.unmountFile(this.extra_include[include]);
