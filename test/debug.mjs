@@ -4,12 +4,16 @@ import { readFileSync } from 'fs';
 
 const parser = await SkillParser.create({
     include(name) {
-        return readFileSync(`/d/games/SeasunGame_unpack/std/${name.replace(/\\/g, '/')}`);
+        try {
+            return readFileSync(`/d/games/SeasunGame_unpack/std/${name.replace(/\\/g, '/')}`);
+        } catch {
+            return;
+        }
     },
 });
 
 const content = await fs.readFile(
-    '/d/games/SeasunGame_unpack/std/scripts/skill/npc助战降临/贺闲/贺闲小技能剑羽伤害子技能.lua',
+    '/d/games/SeasunGame_unpack/std/scripts/skill/七秀/剑器浑脱_心鼓弦.lua',
 );
 
 for (let i = 0; i < 40; i++) {

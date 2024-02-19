@@ -63,7 +63,6 @@ envTemplate = {
 }
 envTemplate.require('mock')
 envTemplate.Include = function(filename)
-    print(111)
     local file_base64 = base64.to_base64(filename)
     local js_result = __Include(file_base64)
     local wasm_fs_name = js_result[0]
@@ -85,10 +84,10 @@ function resetEnv()
         end
         local file_base64 = base64.to_base64(filename)
         local js_result = __Include(file_base64)
-        local wasm_fs_name = js_result[0]
-        if not wasm_fs_name then
+        if not js_result then
             return
-        end
+        end 
+        local wasm_fs_name = js_result[0]
         EnvRequire(wasm_fs_name, env)
         if js_result[1] then
             package.loaded[wasm_fs_name] = nil
