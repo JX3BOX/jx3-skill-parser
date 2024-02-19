@@ -7,7 +7,7 @@ const parser = await SkillParser.create({
         try {
             return readFileSync(`/d/games/SeasunGame_unpack/std/${name.replace(/\\/g, '/')}`);
         } catch {
-            return;
+            console.log('not found', name);
         }
     },
 });

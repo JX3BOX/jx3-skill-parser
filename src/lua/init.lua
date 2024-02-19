@@ -37,6 +37,7 @@ function EnvRequire(path, db)
 end
 
 IncludeCached = {}
+
 envTemplate = {
     require = function(file)
         EnvRequire(file, envTemplate);
@@ -85,6 +86,7 @@ function resetEnv()
         local file_base64 = base64.to_base64(filename)
         local js_result = __Include(file_base64)
         if not js_result then
+            IncludeCached[filename] = true
             return
         end 
         local wasm_fs_name = js_result[0]
