@@ -701,7 +701,31 @@ CHARACTER_ENERGY_TYPE = {
     TOTAL = 4
 }
 
-
+LAND_OBJECT_CATEGORY = {
+    BATHTUB = 2,
+    BED = 1,
+    CARD = 13,
+    CASK = 18,
+    CHAIR = 10,
+    CUPBOARD = 11,
+    DESK_DINING = 8,
+    DESK_DRESSER = 7,
+    DESK_WRITING = 6,
+    DINE = 14,
+    FISH_POOL = 16,
+    INVALID = 0,
+    KITCHEN = 4,
+    MACHINE = 21,
+    PET = 17,
+    PLANT = 12,
+    RAIL = 9,
+    TOILET = 20,
+    TOTAL = 22,
+    WASHSTAND = 3,
+    WEAPON = 15,
+    WELL = 5,
+    WISH_TREE = 19
+}
 
 function IsClient()
     return true
@@ -736,6 +760,18 @@ function GetHomelandMgr()
     return nil
 end
 
+function GetCustom()
+    return nil
+end
+
+function GetMonsterCus()
+    return nil
+end
+
+function GettCHARACTER() 
+    return nil
+end
+
 nJYXLTime = 10 -- 白帝江关 宇文灭常量数据 玄冰功蓄力时间
 nUltimateTime = 15 -- 白帝江关 宇文灭常量数据 九阴破灭枪蓄力时间
 nDuoMingPreTime = 8 -- 白帝江关 宇文灭常量数据 夺命掌蓄力时间
@@ -749,7 +785,6 @@ function __addMetatable(table)
     setmetatable(table, __meta)
     return table
 end
-
 
 tIdentidySkill = __addMetatable({})
 tRobAdventure = __addMetatable({})

@@ -11,12 +11,13 @@ const parser = await SkillParser.create({
         }
     },
 });
-
+// const content = await fs.readFile(
+//     '/d/games/SeasunGame_unpack/std/scripts/skill/长歌/套路及子技能/新相依雾散伤害子技能.lua',
+// );
 const content = await fs.readFile(
-    '/d/games/SeasunGame_unpack/std/scripts/skill/七秀/剑器浑脱_心鼓弦.lua',
+    '/d/games/SeasunGame_unpack/std/scripts/skill/七秀/猿公剑法_剑斩风流.lua',
 );
 
-for (let i = 0; i < 40; i++) {
-    console.log(i);
-    const result = await parser.parse(content);
-}
+console.log(
+    await parser.parse(content),
+);

@@ -131,7 +131,7 @@ export class SkillParser {
             skill_data.$destroy();
         }
         // 如果等级小于0，取最大等级
-        if (options.level < 0) {
+        if (options.level <= 0) {
             options.level = max_level;
         }
         // 初始化skill对象
