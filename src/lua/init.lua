@@ -36,6 +36,7 @@ function EnvRequire(path, db)
     setmetatable(db, nil)
 end
 
+IncludeCached = {}
 envTemplate = {
     require = function(file)
         EnvRequire(file, envTemplate);
@@ -61,6 +62,17 @@ envTemplate = {
     loadfile = loadfile
 }
 envTemplate.require('mock')
+envTemplate.Include = function(filename)
+    print(111)
+    local file_base64 = base64.to_base64(filename)
+    local js_result = __Include(file_base64)
+    local wasm_fs_name = js_result[0]
+    if not wasm_fs_name then
+        return
+    end
+    package.loaded[wasm_fs_name] = nil
+    EnvRequire(wasm_fs_name, envTemplate)
+end
 
 function resetEnv()
     env = DeepCopy(envTemplate)
@@ -68,13 +80,22 @@ function resetEnv()
         EnvRequire(file, env);
     end
     env.Include = function(filename)
+        if IncludeCached[filename] then
+            return
+        end
         local file_base64 = base64.to_base64(filename)
-        local wasm_fs_name = __Include(file_base64)
+        local js_result = __Include(file_base64)
+        local wasm_fs_name = js_result[0]
         if not wasm_fs_name then
             return
         end
-
         EnvRequire(wasm_fs_name, env)
+        if js_result[1] then
+            package.loaded[wasm_fs_name] = nil
+            EnvRequire(wasm_fs_name, envTemplate)
+            IncludeCached[filename] = true
+        end
+        package.loaded[wasm_fs_name] = nil
     end
 end
 

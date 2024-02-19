@@ -11,5 +11,8 @@ const parser = await SkillParser.create({
 const content = await fs.readFile(
     '/d/games/SeasunGame_unpack/std/scripts/skill/npc助战降临/贺闲/贺闲小技能剑羽伤害子技能.lua',
 );
-const result = await parser.parse(content);
-console.log(result);
+
+for (let i = 0; i < 40; i++) {
+    console.log(i);
+    const result = await parser.parse(content);
+}

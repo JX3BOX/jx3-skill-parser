@@ -1,6 +1,6 @@
 {
     "name": "@jx3box/jx3-skill-parser",
-    "version": "0.0.14",
+    "version": "0.1.0",
     "description": "A package used to parse jx3 game skill script",
     "authors": [
         "x3zvawq <x3zvawq@gmail.com>"
@@ -34,6 +34,7 @@
         "deasync": "^0.1.29",
         "iconv-lite": "^0.6.3",
         "lodash": "^4.17.21",
+        "pinyin-pro": "^3.19.5",
         "wasmoon-lua5.1": "1.18.9"
     },
     "license": "MIT",

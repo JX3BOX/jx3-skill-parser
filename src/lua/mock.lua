@@ -693,8 +693,15 @@ SKILL_KIND_TYPE = {
     SOLAR_MAGIC = 2
 }
 
-tIdentidySkill = {}
-tRobAdventure = {}
+CHARACTER_ENERGY_TYPE = {
+    ENERGY = 1,
+    MOON_ENERGY = 3,
+    RAGE = 0,
+    SUN_ENERGY = 2,
+    TOTAL = 4
+}
+
+
 
 function IsClient()
     return true
@@ -725,9 +732,26 @@ function LangKeXing_GetSceneValue()
     return nil
 end
 
-function GetHomelandMgr ()
+function GetHomelandMgr()
     return nil
 end
 
 nJYXLTime = 10 -- 白帝江关 宇文灭常量数据 玄冰功蓄力时间
 nUltimateTime = 15 -- 白帝江关 宇文灭常量数据 九阴破灭枪蓄力时间
+nDuoMingPreTime = 8 -- 白帝江关 宇文灭常量数据 夺命掌蓄力时间
+
+__meta = {
+    __index = function()
+        return 0
+    end
+}
+function __addMetatable(table)
+    setmetatable(table, __meta)
+    return table
+end
+
+
+tIdentidySkill = __addMetatable({})
+tRobAdventure = __addMetatable({})
+tOVERVIEWRemoteData = __addMetatable({})
+SKILL_LIST = __addMetatable({})
