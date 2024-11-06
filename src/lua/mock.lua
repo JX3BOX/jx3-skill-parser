@@ -3,7 +3,7 @@ GLOBAL = {
 }
 
 function GetEditorString(...)
-    -- dummy
+    return "Mock String"
 end
 
 ATTRIBUTE_EFFECT_MODE = {
