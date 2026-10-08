@@ -22,18 +22,46 @@ function DeepCopy(orig)
     return copy
 end
 
-function EnvRequire(path, db)
-    setmetatable(db, {
-        __index = _G
-    })
-    setfenv(0, db)
-    package.loaded[path] = nil
-    require(path)
-    local db_meta = getmetatable(db)
-    if db_meta ~= nil then
-        setfenv(0, getmetatable(db).__index)
+-- Lua 5.1's native pcall/require cannot yield across their C frames. Forward
+-- yields from a protected child coroutine to the host's Promise scheduler.
+local function pack(...)
+    return { n = select('#', ...), ... }
+end
+
+local function yieldablePcall(fn, ...)
+    local thread = coroutine.create(fn)
+    local result = pack(coroutine.resume(thread, ...))
+    while result[1] and coroutine.status(thread) ~= 'dead' do
+        result = pack(coroutine.resume(thread, coroutine.yield(unpack(result, 2, result.n))))
     end
-    setmetatable(db, nil)
+    return unpack(result, 1, result.n)
+end
+
+local function yieldableXpcall(fn, handler)
+    local result = pack(yieldablePcall(fn))
+    if result[1] then return unpack(result, 1, result.n) end
+    local handled = pack(yieldablePcall(handler, result[2]))
+    if not handled[1] then return false, 'error in error handling' end
+    return false, handled[2]
+end
+
+function EnvRequire(name, db)
+    local loader, loadError
+    for template in string.gmatch(package.path, '[^;]+') do
+        loader, loadError = loadfile((string.gsub(template, '%?', function() return name end)))
+        if loader then break end
+    end
+    if not loader then error(loadError) end
+    local previous = getmetatable(db)
+    setmetatable(db, { __index = _G })
+    setfenv(loader, db)
+    local result = pack(yieldablePcall(function()
+        setfenv(0, db)
+        return loader()
+    end))
+    setmetatable(db, previous)
+    if not result[1] then error(result[2], 0) end
+    return unpack(result, 2, result.n)
 end
 
 IncludeCached = {}
@@ -49,8 +77,8 @@ envTemplate = {
     table = table,
     pairs = pairs,
     ipairs = ipairs,
-    pcall = pcall,
-    xpcall = xpcall,
+    pcall = yieldablePcall,
+    xpcall = yieldableXpcall,
     select = select,
     tostring = tostring,
     tonumber = tonumber,
@@ -66,6 +94,7 @@ envTemplate.require('mock')
 envTemplate.Include = function(filename)
     local file_base64 = base64.to_base64(filename)
     local js_result = __Include(file_base64)
+    if not js_result then return end
     local wasm_fs_name = js_result[0]
     if not wasm_fs_name then
         return

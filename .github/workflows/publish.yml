@@ -1,8 +1,15 @@
 name: CI
 
+# PR 验证包内容与调用方类型；master 推送通过后使用 npm Trusted Publisher 发布。
+
 on:
     push:
         branches: [master]
+    pull_request:
+        branches: [master]
+
+permissions:
+    contents: read
 
 jobs:
     publish:
@@ -20,7 +27,14 @@ jobs:
               with:
                   node-version: 24
                   registry-url: https://registry.npmjs.org/
+                  cache: npm
+            - run: npm install --global npm@12.2.0
             - run: npm ci
             - run: npm run lint:nofix
+            - run: npm run typecheck
             - run: npm run build
-            - run: npm publish --provenance --access public
+            - run: npm test
+            - run: npm run test:package
+            - name: Publish with npm Trusted Publisher
+              if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+              run: npm publish --provenance --access public

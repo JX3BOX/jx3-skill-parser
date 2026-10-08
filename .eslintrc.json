@@ -22,9 +22,10 @@
     "ignorePatterns": [
         "dist/*",
         "build/*",
-        "rollup.config.mjs",
         "utils/*",
-        "test/debug.mjs"
+        "test/debug.mjs",
+        "tsdown.config.mts",
+        "scripts/*"
     ],
     "rules": {
         "no-console": "off",

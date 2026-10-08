@@ -1,28 +1,17 @@
+// 接收 Lua 技能属性与检查条件，整理解析器已实现的结果字段。
 import iconv from 'iconv-lite';
-export interface SkillAttribute {
-    ATTRIBUTE_EFFECT_MODE: string;
-    ATTRIBUTE_TYPE: string;
-    param1: any;
-    param2: any;
-}
-
-export interface SkillCheck {
-    skillId: number;
-    dwLevel: number;
-    compareFlag: number;
-}
-
+import type { SkillResult } from './types';
 export class Skill {
     [key: string]: any;
 
-    constructor(defaults: any) {
+    constructor(defaults: Pick<SkillResult, 'dwSkillID' | 'dwLevel' | 'dwMaxLevel'>) {
         Object.assign(this, defaults);
     }
 
-    $getResult() {
+    $getResult(): SkillResult {
         return Object.fromEntries(
             Object.entries(this).filter(([_, value]) => typeof value !== 'function'),
-        );
+        ) as SkillResult;
     }
 
     AddCheckSelfLearntSkill(skillId: number, dwLevel: number, compareFlag: string) {

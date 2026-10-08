@@ -1,3 +1,4 @@
+// 注册技能对象元方法，保留 GBK 属性参数在 Lua 与 JS 之间的原始编码。
 import { LuaReturn, LuaThread, LuaType } from 'wasmoon-lua5.1';
 
 // 编码问题 原来的方案行不通
@@ -26,7 +27,7 @@ export const registerIndexFunction = (thread: LuaThread): number => {
         callThread.pop(2);
         const userdata = callThread.luaApi.lua_touserdata(L, 1);
         const ref = callThread.luaApi.module.getValue(userdata, '*');
-        const target = callThread.luaApi.getRef(ref as number);
+        const target = callThread.luaApi.getRef(ref);
         const value = typeof target[key] === 'function' ? target[key].bind(target) : target[key];
 
         callThread.pushValue(value);
@@ -45,7 +46,7 @@ export const registerNewIndexFunction = (thread: LuaThread): number => {
         const key = callThread.getValue(2);
         if (callThread.luaApi.lua_type(L, 3) !== LuaType.Function) {
             const value = callThread.getValue(3);
-            thread.luaApi.getRef(ref as number)[key] = value;
+            thread.luaApi.getRef(ref)[key] = value;
         }
         // 给lua端的table的元表__inner赋值
         callThread.luaApi.lua_getmetatable(L, 1);
